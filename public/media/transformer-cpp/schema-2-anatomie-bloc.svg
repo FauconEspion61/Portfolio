@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 1032 512" width="1032" height="512" role="img" aria-label="Le bloc encodeur enchaîne self-attention puis feed-forward, chacun suivi de dropout, addition résiduelle et LayerNorm. Le bloc décodeur insère entre les deux une attention croisée dont les clés et valeurs viennent de la sortie de l'encodeur.">
+<title>TransformerCpp — anatomie d'un bloc</title>
+<style>
+svg{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#131A1F;--muted:#59686F;--line:#C3CDD2;--gpu:#A85C1B;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){svg{--bg:#0F1418;--surface:#171E23;--ink:#E5EBEE;--muted:#93A3AC;--line:#2C3841;--gpu:#E19A57}}
+.bg{fill:var(--bg)}
+.t-name{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:12.5px;font-weight:500;fill:var(--ink)}
+.t-sub{font-size:10.5px;fill:var(--muted)}
+.t-lane{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em}
+.t-edge{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:10.5px;fill:var(--muted)}
+.t-small{font-size:10px;fill:var(--muted)}
+.box-gpu{fill:var(--surface);stroke:var(--gpu);stroke-width:1.3}
+.box-n{fill:var(--surface);stroke:var(--line);stroke-width:1.3}
+.ln{stroke:var(--ink);stroke-width:1.4;fill:none}
+.ln-gpu{stroke:var(--gpu);stroke-width:1.4;fill:none}
+.a-ink{fill:var(--ink)}.a-gpu{fill:var(--gpu)}
+</style>
+<defs>
+<marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-ink" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+<marker id="g" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-gpu" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+</defs>
+<rect class="bg" x="-16" y="-16" width="1032" height="512"/>
+
+<text class="t-lane" x="40" y="30" fill="var(--gpu)">BLOC ENCODEUR ×N</text>
+<text class="t-lane" x="560" y="30" fill="var(--gpu)">BLOC DÉCODEUR ×N</text>
+
+<text class="t-edge" x="240" y="58" text-anchor="middle">x — (B·n, d_model)</text>
+<text class="t-edge" x="760" y="58" text-anchor="middle">y — (B·n_tgt, d_model)</text>
+
+<rect class="box-gpu" x="40" y="70" width="400" height="46" rx="3"/>
+<text class="t-name" x="240" y="91" text-anchor="middle">Multi-Head Attention (self)</text>
+<text class="t-sub" x="240" y="107" text-anchor="middle">masque bloc-diagonal + padding · strided-batched</text>
+
+<rect class="box-n" x="40" y="136" width="400" height="32" rx="3"/>
+<text class="t-name" x="240" y="157" text-anchor="middle">Dropout → ⊕ résiduelle → LayerNorm</text>
+
+<rect class="box-gpu" x="40" y="188" width="400" height="46" rx="3"/>
+<text class="t-name" x="240" y="209" text-anchor="middle">Feed-Forward</text>
+<text class="t-sub" x="240" y="225" text-anchor="middle">Linear → ReLU → Linear</text>
+
+<rect class="box-n" x="40" y="254" width="400" height="32" rx="3"/>
+<text class="t-name" x="240" y="275" text-anchor="middle">Dropout → ⊕ résiduelle → LayerNorm</text>
+
+<line class="ln" x1="240" y1="62" x2="240" y2="66" marker-end="url(#a)"/>
+<line class="ln" x1="240" y1="116" x2="240" y2="132" marker-end="url(#a)"/>
+<line class="ln" x1="240" y1="168" x2="240" y2="184" marker-end="url(#a)"/>
+<line class="ln" x1="240" y1="234" x2="240" y2="250" marker-end="url(#a)"/>
+<line class="ln" x1="240" y1="286" x2="240" y2="306" marker-end="url(#a)"/>
+<text class="t-edge" x="240" y="326" text-anchor="middle">sortie du bloc</text>
+
+<rect class="box-gpu" x="560" y="70" width="400" height="46" rx="3"/>
+<text class="t-name" x="760" y="91" text-anchor="middle">Masked Multi-Head Attention</text>
+<text class="t-sub" x="760" y="107" text-anchor="middle">masque causal + padding</text>
+
+<rect class="box-n" x="560" y="136" width="400" height="32" rx="3"/>
+<text class="t-name" x="760" y="157" text-anchor="middle">Dropout → ⊕ résiduelle → LayerNorm</text>
+
+<rect class="box-gpu" x="560" y="188" width="400" height="46" rx="3"/>
+<text class="t-name" x="760" y="209" text-anchor="middle">Cross-Attention</text>
+<text class="t-sub" x="760" y="225" text-anchor="middle">Q = décodeur · K, V = enc_out</text>
+
+<rect class="box-n" x="560" y="254" width="400" height="32" rx="3"/>
+<text class="t-name" x="760" y="275" text-anchor="middle">Dropout → ⊕ résiduelle → LayerNorm</text>
+
+<rect class="box-gpu" x="560" y="306" width="400" height="46" rx="3"/>
+<text class="t-name" x="760" y="327" text-anchor="middle">Feed-Forward</text>
+<text class="t-sub" x="760" y="343" text-anchor="middle">Linear → ReLU → Linear</text>
+
+<rect class="box-n" x="560" y="372" width="400" height="32" rx="3"/>
+<text class="t-name" x="760" y="393" text-anchor="middle">Dropout → ⊕ résiduelle → LayerNorm</text>
+
+<line class="ln" x1="760" y1="62" x2="760" y2="66" marker-end="url(#a)"/>
+<line class="ln" x1="760" y1="116" x2="760" y2="132" marker-end="url(#a)"/>
+<line class="ln" x1="760" y1="168" x2="760" y2="184" marker-end="url(#a)"/>
+<line class="ln" x1="760" y1="234" x2="760" y2="250" marker-end="url(#a)"/>
+<line class="ln" x1="760" y1="286" x2="760" y2="302" marker-end="url(#a)"/>
+<line class="ln" x1="760" y1="352" x2="760" y2="368" marker-end="url(#a)"/>
+<line class="ln" x1="760" y1="404" x2="760" y2="424" marker-end="url(#a)"/>
+<text class="t-edge" x="760" y="444" text-anchor="middle">→ projection → logits</text>
+
+<path class="ln-gpu" d="M 440 300 C 500 300, 500 211, 552 211" marker-end="url(#g)"/>
+<text class="t-edge" x="470" y="264" fill="var(--gpu)">enc_out</text>
+<text class="t-small" x="470" y="279">sortie de l'encodeur</text>
+</svg>

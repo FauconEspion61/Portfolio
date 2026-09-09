@@ -1,0 +1,92 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+import type { ProjectMedia } from "../data/projects";
+
+interface Props {
+  item: ProjectMedia;
+}
+
+const { item } = Astro.props;
+
+/**
+ * Les schémas SVG sont injectés directement dans la page (plutôt que via <img>)
+ * pour que leurs couleurs suivent le thème choisi sur le site, et pas seulement
+ * la préférence clair/sombre du système d'exploitation.
+ */
+let inlineSvg: string | null = null;
+if (item.type === "diagram" && item.src.endsWith(".svg")) {
+  try {
+    inlineSvg = fs.readFileSync(path.join(process.cwd(), "public", item.src), "utf-8");
+  } catch {
+    inlineSvg = null;
+  }
+}
+---
+
+<figure class:list={["media-block", { diagram: item.type === "diagram" }]}>
+  {
+    item.type === "video" ? (
+      <video autoplay muted loop playsinline aria-label={item.alt}>
+        <source src={item.src} />
+      </video>
+    ) : inlineSvg ? (
+      <div class="svg-holder" set:html={inlineSvg} />
+    ) : (
+      <img src={item.src} alt={item.alt} loading="lazy" />
+    )
+  }
+  {item.caption && <figcaption>{item.caption}</figcaption>}
+</figure>
+
+<style>
+  .media-block {
+    margin: 30px 0;
+  }
+
+  .media-block img,
+  .media-block video,
+  .svg-holder {
+    display: block;
+    width: 100%;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+
+  .media-block:not(.diagram) img,
+  .media-block:not(.diagram) video {
+    max-height: 520px;
+    object-fit: cover;
+    background: #000;
+  }
+
+  .media-block.diagram img {
+    background: var(--bg-elev);
+    padding: 18px;
+  }
+
+  .svg-holder {
+    background: var(--bg-elev);
+    padding: 18px;
+  }
+
+  .svg-holder :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+
+    /* On surcharge la palette interne des schémas avec les tokens du site :
+       plus spécifique que leur règle `svg { ... }`, donc le thème du site gagne. */
+    --bg: var(--bg-elev);
+    --surface: var(--bg-elev);
+    --ink: var(--text);
+    --muted: var(--text-muted);
+    --line: var(--border-strong);
+    --cpu: var(--diagram-cpu);
+    --gpu: var(--diagram-gpu);
+    --cpuSoft: var(--diagram-cpu-soft);
+    --gpuSoft: var(--diagram-gpu-soft);
+  }
+</style>

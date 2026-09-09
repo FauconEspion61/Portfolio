@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 1132 632" width="1132" height="632" role="img" aria-label="Le corpus est préparé en RAM par le tokenizer BPE puis découpé en batches triés par longueur ; seuls les indices de tokens partent sur le GPU, où une région capturée en CUDA Graph enchaîne encodeur, décodeur, projection et rétropropagation, entourée d'étapes eager pour les embeddings et Adam.">
+<title>TransformerCpp — le trajet d'un batch</title>
+<style>
+svg{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#131A1F;--muted:#59686F;--line:#C3CDD2;--cpu:#2F6382;--gpu:#A85C1B;--cpuSoft:#E1ECF3;--gpuSoft:#F7E9DB;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){svg{--bg:#0F1418;--surface:#171E23;--ink:#E5EBEE;--muted:#93A3AC;--line:#2C3841;--cpu:#79B4D8;--gpu:#E19A57;--cpuSoft:#16242E;--gpuSoft:#2A1F14}}
+.bg{fill:var(--bg)}
+.t-name{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:12.5px;font-weight:500;fill:var(--ink)}
+.t-sub{font-size:10.5px;fill:var(--muted)}
+.t-lane{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em}
+.t-edge{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:10.5px;fill:var(--muted)}
+.t-small{font-size:10px;fill:var(--muted)}
+.box-cpu{fill:var(--surface);stroke:var(--cpu);stroke-width:1.3}
+.box-gpu{fill:var(--surface);stroke:var(--gpu);stroke-width:1.3}
+.box-n{fill:var(--surface);stroke:var(--line);stroke-width:1.3}
+.lane-cpu{fill:var(--cpuSoft);stroke:var(--cpu);stroke-width:1}
+.lane-gpu{fill:var(--gpuSoft);stroke:var(--gpu);stroke-width:1}
+.ln{stroke:var(--ink);stroke-width:1.4;fill:none}
+.ln-back{stroke:var(--gpu);stroke-width:1.4;fill:none;stroke-dasharray:5 4}
+.graphzone{fill:none;stroke:var(--gpu);stroke-width:1.5;stroke-dasharray:5 4}
+.a-ink{fill:var(--ink)}.a-gpu{fill:var(--gpu)}
+</style>
+<defs>
+<marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-ink" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+<marker id="g" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-gpu" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+</defs>
+<rect class="bg" x="-16" y="-16" width="1132" height="632"/>
+
+<rect class="lane-cpu" x="20" y="40" width="1060" height="140" rx="6"/>
+<text class="t-lane" x="38" y="64" fill="var(--cpu)">HÔTE — RAM</text>
+
+<rect class="box-cpu" x="40" y="90" width="160" height="54" rx="3"/>
+<text class="t-name" x="120" y="115" text-anchor="middle">fra.txt</text>
+<text class="t-sub" x="120" y="131" text-anchor="middle">corpus TSV brut</text>
+
+<rect class="box-cpu" x="220" y="90" width="160" height="54" rx="3"/>
+<text class="t-name" x="300" y="115" text-anchor="middle">load_parallel_tsv</text>
+<text class="t-sub" x="300" y="131" text-anchor="middle">minuscules · filtre</text>
+
+<rect class="box-cpu" x="400" y="90" width="160" height="54" rx="3"/>
+<text class="t-name" x="480" y="115" text-anchor="middle">BPETokenizer</text>
+<text class="t-sub" x="480" y="131" text-anchor="middle">texte → ids · BOS/EOS</text>
+
+<rect class="box-cpu" x="580" y="90" width="160" height="54" rx="3"/>
+<text class="t-name" x="660" y="115" text-anchor="middle">make_examples</text>
+<text class="t-sub" x="660" y="131" text-anchor="middle">teacher forcing</text>
+
+<rect class="box-cpu" x="760" y="90" width="160" height="54" rx="3"/>
+<text class="t-name" x="840" y="115" text-anchor="middle">bucketed_batches</text>
+<text class="t-sub" x="840" y="131" text-anchor="middle">tri par longueur</text>
+
+<line class="ln" x1="200" y1="117" x2="216" y2="117" marker-end="url(#a)"/>
+<line class="ln" x1="380" y1="117" x2="396" y2="117" marker-end="url(#a)"/>
+<line class="ln" x1="560" y1="117" x2="576" y2="117" marker-end="url(#a)"/>
+<line class="ln" x1="740" y1="117" x2="756" y2="117" marker-end="url(#a)"/>
+
+<line class="ln" x1="840" y1="144" x2="840" y2="212" marker-end="url(#a)"/>
+<text class="t-edge" x="856" y="168">ids de tokens · quelques Ko</text>
+<text class="t-small" x="856" y="184">le corpus reste en RAM</text>
+
+<rect class="lane-gpu" x="20" y="216" width="1060" height="364" rx="6"/>
+<text class="t-lane" x="38" y="240" fill="var(--gpu)">DEVICE — VRAM (poids et activations résidents)</text>
+
+<text class="t-edge" x="40" y="260">EAGER</text>
+<rect class="box-gpu" x="40" y="268" width="160" height="44" rx="3"/>
+<text class="t-name" x="120" y="288" text-anchor="middle">GpuEmbedding</text>
+<text class="t-sub" x="120" y="303" text-anchor="middle">src → (B·n_src, d)</text>
+
+<rect class="box-gpu" x="40" y="344" width="160" height="44" rx="3"/>
+<text class="t-name" x="120" y="364" text-anchor="middle">GpuEmbedding</text>
+<text class="t-sub" x="120" y="379" text-anchor="middle">dec_in → (B·n_tgt, d)</text>
+
+<rect class="box-gpu" x="40" y="420" width="160" height="44" rx="3"/>
+<text class="t-name" x="120" y="440" text-anchor="middle">masques</text>
+<text class="t-sub" x="120" y="455" text-anchor="middle">bloc · causal · padding</text>
+
+<rect class="graphzone" x="224" y="256" width="708" height="272" rx="8"/>
+<text class="t-lane" x="240" y="277" fill="var(--gpu)">RÉGION CAPTURÉE — cudaGraphExec, cache par forme (n_src, n_tgt, B)</text>
+
+<rect class="box-gpu" x="248" y="288" width="100" height="44" rx="3"/>
+<text class="t-name" x="298" y="315" text-anchor="middle">+ PosEnc</text>
+
+<rect class="box-gpu" x="372" y="288" width="168" height="44" rx="3"/>
+<text class="t-name" x="456" y="309" text-anchor="middle">GpuEncoder ×N</text>
+<text class="t-sub" x="456" y="324" text-anchor="middle">self-attention</text>
+
+<rect class="box-gpu" x="248" y="364" width="100" height="44" rx="3"/>
+<text class="t-name" x="298" y="391" text-anchor="middle">+ PosEnc</text>
+
+<rect class="box-gpu" x="372" y="364" width="168" height="44" rx="3"/>
+<text class="t-name" x="456" y="385" text-anchor="middle">GpuDecoder ×N</text>
+<text class="t-sub" x="456" y="400" text-anchor="middle">causal + cross</text>
+
+<rect class="box-gpu" x="564" y="364" width="124" height="44" rx="3"/>
+<text class="t-name" x="626" y="385" text-anchor="middle">GpuLinear</text>
+<text class="t-sub" x="626" y="400" text-anchor="middle">→ logits</text>
+
+<rect class="box-gpu" x="712" y="364" width="156" height="44" rx="3"/>
+<text class="t-name" x="790" y="385" text-anchor="middle">cross-entropy</text>
+<text class="t-sub" x="790" y="400" text-anchor="middle">+ label smoothing</text>
+
+<line class="ln" x1="200" y1="290" x2="244" y2="290" marker-end="url(#a)"/>
+<line class="ln" x1="348" y1="310" x2="368" y2="310" marker-end="url(#a)"/>
+<line class="ln" x1="200" y1="366" x2="244" y2="366" marker-end="url(#a)"/>
+<line class="ln" x1="348" y1="386" x2="368" y2="386" marker-end="url(#a)"/>
+<line class="ln" x1="540" y1="386" x2="560" y2="386" marker-end="url(#a)"/>
+<line class="ln" x1="688" y1="386" x2="708" y2="386" marker-end="url(#a)"/>
+<line class="ln" x1="200" y1="442" x2="244" y2="442" marker-end="url(#a)"/>
+
+<line class="ln" x1="456" y1="332" x2="456" y2="360" marker-end="url(#a)"/>
+<text class="t-edge" x="466" y="352">enc_out (K, V)</text>
+
+<line class="ln-back" x1="790" y1="408" x2="790" y2="468"/>
+<line class="ln-back" x1="790" y1="468" x2="256" y2="468" marker-end="url(#g)"/>
+<text class="t-edge" x="524" y="460" text-anchor="middle" fill="var(--gpu)">backward_compute — gradients accumulés in-place</text>
+
+<line class="ln-back" x1="330" y1="468" x2="330" y2="532" marker-end="url(#g)"/>
+<rect class="box-gpu" x="224" y="536" width="212" height="36" rx="3"/>
+<text class="t-name" x="330" y="559" text-anchor="middle">embedding backward</text>
+
+<rect class="box-gpu" x="460" y="536" width="250" height="36" rx="3"/>
+<text class="t-name" x="585" y="559" text-anchor="middle">Adam · lr(warmup → 1/√pas)</text>
+<line class="ln" x1="436" y1="554" x2="456" y2="554" marker-end="url(#a)"/>
+<text class="t-small" x="722" y="558">met à jour les poids résidents</text>
+
+<rect class="box-n" x="948" y="288" width="132" height="96" rx="3"/>
+<text class="t-name" x="1014" y="310" text-anchor="middle">GpuDropout</text>
+<text class="t-sub" x="1014" y="330" text-anchor="middle">masque cuRAND</text>
+<text class="t-sub" x="1014" y="346" text-anchor="middle">généré en eager,</text>
+<text class="t-sub" x="1014" y="362" text-anchor="middle">le graphe le lit</text>
+<line class="ln" x1="944" y1="336" x2="928" y2="336" marker-end="url(#a)"/>
+</svg>

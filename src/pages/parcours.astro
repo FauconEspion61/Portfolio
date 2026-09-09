@@ -1,0 +1,408 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { site } from "../data/site";
+
+const experiences = site.timeline.filter((entry) => entry.kind === "experience");
+const formations = site.timeline.filter((entry) => entry.kind === "formation");
+
+const sections = [
+  { title: "Expériences", entries: experiences },
+  { title: "Formation", entries: formations },
+].filter((section) => section.entries.length > 0);
+---
+
+<Layout title={`Parcours — ${site.name}`} description={`Parcours, compétences et CV de ${site.name}.`}>
+  <section class="page-head">
+    <div class="aurora" aria-hidden="true"><i class="a1"></i></div>
+    <div class="container head-inner">
+      <p class="eyebrow" data-reveal>Parcours</p>
+      <h1 data-reveal style="--reveal-delay: 60ms">{site.name}</h1>
+      <p class="role mono" data-reveal style="--reveal-delay: 110ms">{site.role}</p>
+
+      <div class="bio" data-reveal style="--reveal-delay: 170ms">
+        {site.bio.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+
+      <div class="head-actions" data-reveal style="--reveal-delay: 230ms">
+        {
+          site.links.cv ? (
+            <a class="btn btn-primary" href={site.links.cv} download>
+              Télécharger mon CV (PDF)
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v13M7 12l5 5 5-5M5 21h14" />
+              </svg>
+            </a>
+          ) : null
+        }
+        <a class="btn" href={`mailto:${site.email}`}>Me contacter</a>
+        {site.links.linkedin && (
+          <a class="btn" href={site.links.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
+        )}
+      </div>
+      {site.links.cv && site.links.cvUpdated && (
+        <p class="cv-updated mono">Mis à jour : {site.links.cvUpdated}</p>
+      )}
+    </div>
+  </section>
+
+  <!-- ============================ TIMELINE ============================ -->
+  {
+    sections.map((section) => (
+      <section class="section-tight">
+        <div class="container">
+          <div class="section-head" data-reveal>
+            <h2>{section.title}</h2>
+          </div>
+
+          <div class="timeline">
+            {section.entries.map((entry, i) => (
+              <article class="entry" data-reveal style={`--reveal-delay: ${i * 80}ms`}>
+                <div class="entry-marker" aria-hidden="true" />
+
+                <div class="entry-body">
+                  <div class="entry-top">
+                    <span class="entry-period mono">{entry.period}</span>
+                    {entry.current && <span class="pill pill-accent pill-dot">En cours</span>}
+                  </div>
+
+                  <h3 class="entry-title">{entry.title}</h3>
+
+                  <p class="entry-org">
+                    {entry.org}
+                    {entry.location && <span class="entry-loc"> · {entry.location}</span>}
+                  </p>
+
+                  {entry.description && <p class="entry-desc">{entry.description}</p>}
+
+                  {entry.bullets && entry.bullets.length > 0 && (
+                    <ul class="entry-bullets">
+                      {entry.bullets.map((bullet) => (
+                        <li>{bullet}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {entry.tags && entry.tags.length > 0 && (
+                    <div class="entry-tags">
+                      {entry.tags.map((tag) => (
+                        <span class="chip">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <!-- ============================ COMPÉTENCES & LANGUES ============================ -->
+  <section class="section skills-section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <h2>Compétences</h2>
+      </div>
+
+      <div class="skills">
+        {
+          site.skills.map((group, i) => (
+            <div class="skill-card surface" data-reveal style={`--reveal-delay: ${i * 60}ms`}>
+              <h3 class="skill-title">{group.category}</h3>
+              <div class="skill-chips">
+                {group.items.map((item) => (
+                  <span class="chip">{item}</span>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      {
+        site.languages.length > 0 && (
+          <div class="languages" data-reveal>
+            <h3 class="lang-title">Langues</h3>
+            <div class="lang-list">
+              {site.languages.map((language) => (
+                <div class="lang">
+                  <span class="lang-name">{language.name}</span>
+                  <span class="lang-level mono">{language.level}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- ============================ CONTACT ============================ -->
+  <section class="section-tight">
+    <div class="container">
+      <div class="contact surface" data-reveal>
+        <div>
+          <h2>Envie d'échanger ?</h2>
+          <p class="lead">Le plus simple reste un mail — je réponds rapidement.</p>
+        </div>
+        <a class="btn btn-primary" href={`mailto:${site.email}`}>{site.email}</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-head {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(50px, 8vw, 88px) 0 clamp(30px, 4vw, 44px);
+  }
+
+  .head-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 74ch;
+  }
+
+  .head-inner h1 {
+    font-size: clamp(2.1rem, 6vw, 3.6rem);
+    margin-bottom: 12px;
+  }
+
+  .role {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 26px;
+  }
+
+  .bio {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 30px;
+  }
+
+  .head-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .cv-updated {
+    margin-top: 12px;
+    font-size: 0.76rem;
+    color: var(--text-dim);
+  }
+
+  /* ---------- timeline ---------- */
+
+  .timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    padding-left: 26px;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: linear-gradient(var(--accent), var(--border) 60%);
+    opacity: 0.5;
+  }
+
+  .entry {
+    position: relative;
+  }
+
+  .entry-marker {
+    position: absolute;
+    left: -26px;
+    top: 7px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+  }
+
+  .entry-body {
+    padding: 20px 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elev);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .entry-body:hover {
+    transform: translateX(3px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .entry-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .entry-period {
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .entry-title {
+    font-size: 1.14rem;
+    margin-bottom: 5px;
+  }
+
+  .entry-org {
+    font-size: 0.94rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .entry-loc {
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .entry-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .entry-bullets {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .entry-bullets li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 0.93rem;
+    color: var(--text-muted);
+  }
+
+  .entry-bullets li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+
+  .entry-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  /* ---------- compétences ---------- */
+
+  .skills-section {
+    background: var(--bg-sunken);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-top: 30px;
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
+    gap: 18px;
+  }
+
+  .skill-card {
+    padding: 22px 24px;
+  }
+
+  .skill-title {
+    font-size: 0.98rem;
+    color: var(--accent);
+    margin-bottom: 13px;
+  }
+
+  .skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .languages {
+    margin-top: 34px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+
+  .lang-title {
+    font-size: 0.98rem;
+    margin-bottom: 14px;
+  }
+
+  .lang-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .lang {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elev);
+  }
+
+  .lang-name {
+    font-weight: 600;
+    font-size: 0.94rem;
+  }
+
+  .lang-level {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+  }
+
+  /* ---------- contact ---------- */
+
+  .contact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding: 32px 34px;
+  }
+
+  .contact h2 {
+    font-size: clamp(1.35rem, 3vw, 1.8rem);
+    margin-bottom: 6px;
+  }
+</style>

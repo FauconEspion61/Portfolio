@@ -1,0 +1,230 @@
+---
+import { CATEGORIES, type Project } from "../data/projects";
+
+interface Props {
+  project: Project;
+  featured?: boolean;
+}
+
+const { project, featured = false } = Astro.props;
+
+const thumb = project.media?.find((m) => m.type === "image");
+const category = CATEGORIES[project.category];
+
+// Initiales de repli quand le projet n'a pas encore d'illustration.
+// On coupe aussi sur les majuscules internes : "ConvNetwork" → "CN".
+const glyph = project.title
+  .split(/[\s-]+/)
+  .flatMap((word) => word.split(/(?=[A-Z])/))
+  .filter(Boolean)
+  .map((word) => word[0])
+  .join("")
+  .slice(0, 2)
+  .toUpperCase();
+---
+
+<a
+  class:list={["card", { featured, "has-thumb": !!thumb }]}
+  href={`/projets/${project.slug}`}
+  data-category={project.category}
+  style={`--accent-hsl: ${project.accent}`}
+>
+  <div class="card-visual">
+    {
+      thumb ? (
+        <img src={thumb.src} alt="" loading="lazy" />
+      ) : (
+        <span class="glyph mono" aria-hidden="true">
+          {glyph}
+        </span>
+      )
+    }
+    <span class="card-cat mono">{category.short}</span>
+  </div>
+
+  <div class="card-body">
+    <div class="card-meta">
+      <span class="pill pill-dot status" data-status={project.status}>{project.status}</span>
+      <span class="pill">{project.period}</span>
+    </div>
+
+    <h3 class="card-title">{project.title}</h3>
+    <p class="card-tagline">{project.tagline}</p>
+
+    <div class="card-stack">
+      {project.stack.slice(0, featured ? 5 : 3).map((tech) => <span class="chip">{tech}</span>)}
+      {
+        project.stack.length > (featured ? 5 : 3) && (
+          <span class="chip">+{project.stack.length - (featured ? 5 : 3)}</span>
+        )
+      }
+    </div>
+
+    <span class="card-cta">
+      Voir le projet
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M13 6l6 6-6 6"></path>
+      </svg>
+    </span>
+  </div>
+</a>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1), border-color 0.24s ease,
+      box-shadow 0.24s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    border-color: hsl(var(--accent-hsl) / 0.55);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* ---------- visuel ---------- */
+
+  .card-visual {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--accent-hsl) / 0.22),
+      hsl(var(--accent-hsl) / 0.05) 55%,
+      transparent
+    );
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    place-items: center;
+  }
+
+  .card-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+
+  .card:hover .card-visual img {
+    transform: scale(1.045);
+  }
+
+  .glyph {
+    font-size: 2.4rem;
+    font-weight: 500;
+    color: hsl(var(--accent-hsl) / 0.85);
+    letter-spacing: 0.02em;
+  }
+
+  .card-cat {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 10px;
+    border-radius: var(--pill);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    background: hsl(var(--accent-hsl) / 0.92);
+    backdrop-filter: blur(6px);
+  }
+
+  /* ---------- corps ---------- */
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    padding: 20px 22px 22px;
+    flex-grow: 1;
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .status[data-status="En cours"] {
+    color: var(--accent-2);
+    border-color: color-mix(in srgb, var(--accent-2) 40%, transparent);
+  }
+
+  .card-title {
+    font-size: 1.22rem;
+  }
+
+  .card-tagline {
+    color: var(--text-muted);
+    font-size: 0.93rem;
+    flex-grow: 1;
+  }
+
+  .card-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: hsl(var(--accent-hsl));
+  }
+
+  .card-cta svg {
+    transition: transform 0.22s ease;
+  }
+
+  .card:hover .card-cta svg {
+    transform: translateX(4px);
+  }
+
+  /* ---------- variante mise en avant ---------- */
+
+  @media (min-width: 900px) {
+    .card.featured {
+      flex-direction: row;
+      grid-column: 1 / -1;
+    }
+
+    .card.featured .card-visual {
+      flex: 0 0 52%;
+      aspect-ratio: auto;
+      border-bottom: none;
+      border-right: 1px solid var(--border);
+    }
+
+    .card.featured .card-body {
+      padding: 34px 36px;
+      justify-content: center;
+      gap: 13px;
+    }
+
+    .card.featured .card-title {
+      font-size: 1.75rem;
+    }
+
+    .card.featured .card-tagline {
+      font-size: 1rem;
+      flex-grow: 0;
+      max-width: 46ch;
+    }
+  }
+</style>

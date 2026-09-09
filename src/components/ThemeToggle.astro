@@ -1,0 +1,72 @@
+---
+---
+
+<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Basculer le thème clair/sombre">
+  <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+  </svg>
+  <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--pill);
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  }
+
+  .theme-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .theme-toggle .icon-moon {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .theme-toggle .icon-sun {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .theme-toggle .icon-moon {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .theme-toggle .icon-sun {
+      display: none;
+    }
+
+    :root:not([data-theme="light"]) .theme-toggle .icon-moon {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  const KEY = "theme";
+  const root = document.documentElement;
+  const btn = document.getElementById("theme-toggle");
+
+  btn?.addEventListener("click", () => {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const current = root.getAttribute("data-theme") ?? (prefersDark ? "dark" : "light");
+    const next = current === "dark" ? "light" : "dark";
+    try {
+      localStorage.setItem(KEY, next);
+    } catch {}
+    root.setAttribute("data-theme", next);
+  });
+</script>
