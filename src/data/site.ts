@@ -37,7 +37,7 @@ export const site = {
    * Mets une phrase courte, ex : "Recherche un stage de fin d'études — 2027".
    * Laisse à null pour ne rien afficher.
    */
-  availability: null as string | null,
+  availability: "Recherche un stage de fin d'études — 2027" as string | null,
 
   links: {
     github: "https://github.com/FauconEspion61",
