@@ -97,7 +97,7 @@ export const projects: Project[] = [
     tagline:
       "Un scanner 3D par tomographie optique : mécanique, firmware et reconstruction, de bout en bout.",
     category: "perso",
-    status: "En cours",
+    status: "En pause",
     period: "Depuis août 2026",
     stack: ["Jetson Orin Nano", "STM32 (Nucleo-L476RG)", "Python", "scikit-image", "C"],
     summary:
@@ -106,6 +106,8 @@ export const projects: Project[] = [
       "L'acquisition repose sur une Jetson Orin Nano Super (JetPack 6.2.3) couplée à une caméra Arducam IMX477 sur port CSI, et sur une carte NUCLEO-L476RG qui pilote un moteur pas-à-pas NEMA17 via un driver DRV8825 pour faire tourner l'échantillon avec précision (200 pas par tour).",
       "Le pipeline logiciel visé enchaîne acquisition synchronisée (rotation + capture), prétraitement des images (niveaux de gris, flat-field), extraction des profils de projection, construction du sinogramme, puis reconstruction tomographique avec scikit-image (iradon) pour empiler les tranches en un volume 3D.",
       "Le projet a aussi été l'occasion de déboguer des problèmes matériels concrets : un overlay device-tree spécifique nécessaire pour faire fonctionner correctement la caméra IMX477 sur le Jetson, et un faux contact d'alimentation qui simulait une panne moteur.",
+      "Le projet est aujourd'hui en pause, bloqué sur la rotation. Le moteur tourne, mais pas de façon reproductible : en mode pleine pas, le NEMA17 entre dans sa bande de résonance à certaines cadences de commande, le rotor se met à osciller au lieu d'avancer proprement et perd le synchronisme — il rate des pas sans qu'aucune erreur ne remonte. Un seul essai vraiment propre, un tour complet continu, a été obtenu à environ 250 pas par seconde ; en descendant à 125 pas par seconde, le phénomène réapparaît systématiquement.",
+      "C'est bloquant pour ce projet précis, car la tomographie exige de connaître l'angle exact de chaque image : un pas perdu fausse toute la reconstruction, et rien dans le montage actuel ne permet de détecter la perte. Les pistes à explorer sont classiques mais demandent du temps de banc — repasser en micro-pas pour lisser le couple et sortir de la bande de résonance, ajuster la limite de courant du DRV8825, ajouter une rampe d'accélération plutôt que de démarrer à pleine cadence, et surtout instrumenter la rotation avec un capteur de position pour vérifier l'angle réel au lieu de le supposer.",
     ],
     highlights: [
       "Intégration d'une caméra CSI sur Jetson (device tree, overlays)",
@@ -126,6 +128,22 @@ export const projects: Project[] = [
         alt: "Démonstration du plateau motorisé en rotation",
         caption: "Rotation du plateau motorisé (NEMA17 + DRV8825) pendant l'acquisition.",
         afterParagraph: 0,
+      },
+      {
+        type: "video",
+        src: "/media/tomographe/acquisition-silhouette.mp4",
+        alt: "Vue de la caméra IMX477 : l'échantillon rétroéclairé apparaît en silhouette",
+        caption:
+          "Ce que voit la caméra pendant l'acquisition : l'échantillon, rétroéclairé par le panneau rouge, se détache en silhouette nette sur le fond. C'est ce contraste que le pipeline exploite ensuite pour extraire les profils de projection.",
+        afterParagraph: 1,
+      },
+      {
+        type: "video",
+        src: "/media/tomographe/banc-vue-ensemble.mp4",
+        alt: "Vue d'ensemble du banc : enceinte, plateau, caméra, alimentation et câblage du driver",
+        caption:
+          "Le banc dans son état actuel : l'enceinte rétroéclairée avec le plateau et la caméra IMX477, puis l'alimentation de laboratoire et le câblage du DRV8825 sur breadboard — la chaîne de puissance au cœur du problème de rotation.",
+        afterParagraph: 4,
       },
     ],
     accent: "190 85% 45%",

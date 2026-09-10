@@ -55,12 +55,30 @@ if (item.type === "diagram" && item.src.endsWith(".svg")) {
     overflow: hidden;
   }
 
-  .media-block:not(.diagram) img,
-  .media-block:not(.diagram) video {
+  /* La vidéo prend sa taille naturelle dans les limites du bloc, puis se centre :
+     une vidéo portrait s'affiche donc sans bandes noires, et une vidéo paysage
+     occupe toujours toute la largeur. */
+  .media-block video {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+  }
+
+  .media-block:not(.diagram) img {
     max-height: 520px;
     object-fit: cover;
     background: #000;
   }
+
+  /* `contain` et non `cover` : les vidéos filmées au téléphone sont en portrait,
+     un recadrage en couperait l'essentiel. */
+  .media-block video {
+    max-height: 560px;
+    object-fit: contain;
+    background: #000;
+  }
+
 
   .media-block.diagram img {
     background: var(--bg-elev);
