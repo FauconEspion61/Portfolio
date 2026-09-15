@@ -1,0 +1,327 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import MediaBlock from "../MediaBlock.astro";
+import { site } from "../../data/site";
+import { CATEGORIES, STATUS_LABELS, type Project, type ProjectMedia } from "../../data/projects";
+import { ROUTES, t, ui, type Lang } from "../../i18n";
+
+interface Props {
+  project: Project;
+  lang: Lang;
+}
+
+const { project, lang } = Astro.props;
+const category = CATEGORIES[project.category];
+const details = t(project.details, lang);
+const highlights = project.highlights ? t(project.highlights, lang) : [];
+
+const leadMedia = project.media?.filter((m) => m.afterParagraph === undefined) ?? [];
+const mediaByParagraph = new Map<number, ProjectMedia[]>();
+for (const item of project.media ?? []) {
+  if (item.afterParagraph === undefined) continue;
+  const list = mediaByParagraph.get(item.afterParagraph) ?? [];
+  list.push(item);
+  mediaByParagraph.set(item.afterParagraph, list);
+}
+---
+
+<Layout
+  lang={lang}
+  title={`${t(project.title, lang)} — ${site.name}`}
+  description={t(project.tagline, lang)}
+>
+  <article style={`--accent-hsl: ${project.accent}`}>
+    <!-- ---------- en-tête ---------- -->
+    <header class="project-head">
+      <div class="aurora" aria-hidden="true"><i class="a1"></i></div>
+      <div class="container head-inner">
+        <a class="back" href={t(ROUTES.projects, lang)}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M11 18l-6-6 6-6"></path>
+          </svg>
+          {t(ui.backToProjects, lang)}
+        </a>
+
+        <div class="badges">
+          <span class="pill cat">{t(category.label, lang)}</span>
+          <span class="pill pill-dot">{t(STATUS_LABELS[project.status], lang)}</span>
+          <span class="pill">{t(project.period, lang)}</span>
+        </div>
+
+        <h1>{t(project.title, lang)}</h1>
+        <p class="lead tagline">{t(project.tagline, lang)}</p>
+      </div>
+    </header>
+
+    <!-- ---------- corps ---------- -->
+    <div class="container body-grid">
+      <div class="content">
+        <p class="summary">{t(project.summary, lang)}</p>
+
+        {leadMedia.map((item) => <MediaBlock item={item} lang={lang} />)}
+
+        {
+          details.map((paragraph, i) => (
+            <>
+              <p class="para">{paragraph}</p>
+              {(mediaByParagraph.get(i) ?? []).map((item) => <MediaBlock item={item} lang={lang} />)}
+            </>
+          ))
+        }
+
+        {
+          highlights.length > 0 && (
+            <section class="highlights">
+              <h2>{t(ui.keyPoints, lang)}</h2>
+              <ul>
+                {highlights.map((point) => (
+                  <li>{point}</li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+      </div>
+
+      <!-- ---------- colonne latérale ---------- -->
+      <aside class="rail">
+        <div class="rail-inner surface">
+          <div class="rail-block">
+            <p class="rail-label mono">{t(ui.railType, lang)}</p>
+            <p class="rail-value">{t(category.label, lang)}</p>
+          </div>
+          <div class="rail-block">
+            <p class="rail-label mono">{t(ui.railPeriod, lang)}</p>
+            <p class="rail-value">{t(project.period, lang)}</p>
+          </div>
+          <div class="rail-block">
+            <p class="rail-label mono">{t(ui.railStatus, lang)}</p>
+            <p class="rail-value">{t(STATUS_LABELS[project.status], lang)}</p>
+          </div>
+          <div class="rail-block">
+            <p class="rail-label mono">{t(ui.railStack, lang)}</p>
+            <div class="rail-chips">
+              {project.stack.map((tech) => <span class="chip">{tech}</span>)}
+            </div>
+          </div>
+
+          {
+            project.links && project.links.length > 0 && (
+              <div class="rail-links">
+                {project.links.map((link) => (
+                  <a class="btn btn-sm" href={link.url} target="_blank" rel="noreferrer">
+                    {t(link.label, lang)}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M7 17 17 7M8 7h9v9"></path>
+                    </svg>
+                  </a>
+                ))}
+              </div>
+            )
+          }
+        </div>
+      </aside>
+    </div>
+
+    <!-- ---------- pied de page projet ---------- -->
+    <div class="container">
+      <div class="project-foot">
+        <a class="link-arrow" href={t(ROUTES.projects, lang)}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M11 18l-6-6 6-6"></path>
+          </svg>
+          {t(ui.returnToProjects, lang)}
+        </a>
+        <a class="link-arrow" href={`mailto:${site.email}`}>{t(ui.questionAboutProject, lang)}</a>
+      </div>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .project-head {
+    position: relative;
+    overflow: hidden;
+    padding: 40px 0 34px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .head-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 26px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .back:hover {
+    color: var(--accent);
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .cat {
+    background: hsl(var(--accent-hsl) / 0.14);
+    border-color: transparent;
+    color: hsl(var(--accent-hsl));
+    font-weight: 500;
+  }
+
+  .head-inner h1 {
+    font-size: clamp(2.1rem, 5.6vw, 3.4rem);
+    max-width: 20ch;
+    margin-bottom: 16px;
+  }
+
+  .tagline {
+    font-size: clamp(1rem, 2vw, 1.14rem);
+    max-width: 58ch;
+  }
+
+  /* ---------- grille corps ---------- */
+
+  .body-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding-top: 46px;
+    padding-bottom: 20px;
+  }
+
+  @media (min-width: 980px) {
+    .body-grid {
+      grid-template-columns: minmax(0, 1fr) 268px;
+      gap: 56px;
+    }
+  }
+
+  .content {
+    min-width: 0;
+    max-width: 72ch;
+  }
+
+  .summary {
+    font-size: 1.08rem;
+    line-height: 1.7;
+    padding: 20px 24px;
+    margin-bottom: 30px;
+    border-left: 3px solid hsl(var(--accent-hsl));
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: var(--bg-sunken);
+  }
+
+  .para {
+    margin-bottom: 18px;
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .highlights {
+    margin-top: 40px;
+    padding: 26px 28px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elev);
+  }
+
+  .highlights h2 {
+    font-size: 1.05rem;
+    margin-bottom: 14px;
+  }
+
+  .highlights ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .highlights li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+
+  .highlights li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: hsl(var(--accent-hsl));
+  }
+
+  /* ---------- rail ---------- */
+
+  .rail-inner {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  @media (min-width: 980px) {
+    .rail-inner {
+      position: sticky;
+      top: 92px;
+    }
+  }
+
+  .rail-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .rail-value {
+    font-size: 0.94rem;
+    font-weight: 500;
+  }
+
+  .rail-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rail-links {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ---------- pied ---------- */
+
+  .project-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 32px 0 60px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+</style>

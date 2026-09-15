@@ -7,7 +7,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro check && astro build",
+    "build:fast": "astro build",
+    "check": "astro check",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -16,5 +18,10 @@
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^26.5.1",
+    "typescript": "^6.0.3"
   }
 }

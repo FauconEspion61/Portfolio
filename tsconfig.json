@@ -1,5 +1,10 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  "exclude": ["dist"],
+  "compilerOptions": {
+    // MediaBlock lit les schémas SVG sur le disque au moment du build (node:fs),
+    // il faut donc les types Node pour que `astro check` passe.
+    "types": ["node"]
+  }
 }

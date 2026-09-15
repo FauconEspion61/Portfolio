@@ -2,18 +2,25 @@
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { site } from "../data/site";
+import { alternateUrl, t, type Lang } from "../i18n";
 import "../styles/global.css";
 
 interface Props {
+  lang: Lang;
   title: string;
   description?: string;
 }
 
-const { title, description = site.tagline } = Astro.props;
+const { lang, title, description = t(site.tagline, lang) } = Astro.props;
+
+const path = Astro.url.pathname;
+const frUrl = alternateUrl(path, "fr");
+const enUrl = alternateUrl(path, "en");
+const origin = Astro.site?.origin ?? "";
 ---
 
 <!doctype html>
-<html lang="fr">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,7 +30,14 @@ const { title, description = site.tagline } = Astro.props;
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:locale" content={lang === "fr" ? "fr_FR" : "en_GB"} />
     <title>{title}</title>
+
+    <!-- Indique aux moteurs de recherche que les deux versions sont le même
+         contenu dans deux langues, et non du contenu dupliqué. -->
+    <link rel="alternate" hreflang="fr" href={`${origin}${frUrl}`} />
+    <link rel="alternate" hreflang="en" href={`${origin}${enUrl}`} />
+    <link rel="alternate" hreflang="x-default" href={`${origin}${frUrl}`} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -53,12 +67,15 @@ const { title, description = site.tagline } = Astro.props;
     </noscript>
   </head>
   <body>
-    <a class="skip-link" href="#main">Aller au contenu</a>
-    <Header />
+    <a class="skip-link" href="#main">{t(
+      { fr: "Aller au contenu", en: "Skip to content" },
+      lang,
+    )}</a>
+    <Header lang={lang} />
     <main id="main">
       <slot />
     </main>
-    <Footer />
+    <Footer lang={lang} />
 
     <script>
       const revealables = document.querySelectorAll("[data-reveal]");

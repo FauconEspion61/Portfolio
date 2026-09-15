@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 1132 672" width="1132" height="672" role="img" aria-label="TrainerApp, a Dear ImGui interface statically linked against transformer_lib, drives three uses of the library in the same process: training, evaluation with BLEU and inference; the library relies on CUDA and on disk checkpoints, and returns the metrics that feed the curves.">
+<title>TransformerCpp under TrainerApp</title>
+<style>
+svg{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#131A1F;--muted:#59686F;--line:#C3CDD2;--cpu:#2F6382;--gpu:#A85C1B;--cpuSoft:#E1ECF3;--gpuSoft:#F7E9DB;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){svg{--bg:#0F1418;--surface:#171E23;--ink:#E5EBEE;--muted:#93A3AC;--line:#2C3841;--cpu:#79B4D8;--gpu:#E19A57;--cpuSoft:#16242E;--gpuSoft:#2A1F14}}
+.bg{fill:var(--bg)}
+.t-name{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:12.5px;font-weight:500;fill:var(--ink)}
+.t-lane{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em}
+.t-edge{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:10.5px;fill:var(--muted)}
+.t-small{font-size:10px;fill:var(--muted)}
+.box-cpu{fill:var(--surface);stroke:var(--cpu);stroke-width:1.3}
+.box-gpu{fill:var(--surface);stroke:var(--gpu);stroke-width:1.3}
+.box-n{fill:var(--surface);stroke:var(--line);stroke-width:1.3}
+.lane-cpu{fill:var(--cpuSoft);stroke:var(--cpu);stroke-width:1}
+.lane-gpu{fill:var(--gpuSoft);stroke:var(--gpu);stroke-width:1}
+.ln{stroke:var(--ink);stroke-width:1.4;fill:none}
+.ln-cpu{stroke:var(--cpu);stroke-width:1.4;fill:none}
+.a-ink{fill:var(--ink)}.a-cpu{fill:var(--cpu)}
+</style>
+<defs>
+<marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-ink" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+<marker id="c" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-cpu" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+</defs>
+<rect class="bg" x="-16" y="-16" width="1132" height="672"/>
+
+<rect class="lane-cpu" x="30" y="30" width="1040" height="126" rx="6"/>
+<text class="t-lane" x="48" y="56" fill="var(--cpu)">TrainerApp — C++ · Dear ImGui</text>
+
+<rect class="box-cpu" x="48" y="72" width="150" height="32" rx="3"/>
+<text class="t-name" x="123" y="93" text-anchor="middle">Models</text>
+<rect class="box-cpu" x="214" y="72" width="150" height="32" rx="3"/>
+<text class="t-name" x="289" y="93" text-anchor="middle">Configuration</text>
+<rect class="box-cpu" x="380" y="72" width="150" height="32" rx="3"/>
+<text class="t-name" x="455" y="93" text-anchor="middle">Training</text>
+<rect class="box-cpu" x="546" y="72" width="150" height="32" rx="3"/>
+<text class="t-name" x="621" y="93" text-anchor="middle">Inference</text>
+<rect class="box-cpu" x="712" y="72" width="150" height="32" rx="3"/>
+<text class="t-name" x="787" y="93" text-anchor="middle">Logs</text>
+
+<text class="t-small" x="880" y="86">Live GPU: temperature,</text>
+<text class="t-small" x="880" y="100">VRAM, utilisation</text>
+<text class="t-small" x="48" y="128">train / val loss curves · BLEU-4 curve · translations per epoch · CSV export</text>
+
+<line class="ln-cpu" x1="300" y1="156" x2="300" y2="210" marker-end="url(#c)"/>
+<text class="t-edge" x="312" y="180">configuration · start · sentence to translate</text>
+<line class="ln-cpu" x1="880" y1="210" x2="880" y2="156" marker-end="url(#c)"/>
+<text class="t-edge" x="868" y="180" text-anchor="end">loss · BLEU · ex/s · translations</text>
+
+<rect class="lane-gpu" x="30" y="214" width="1040" height="230" rx="6"/>
+<text class="t-lane" x="48" y="240" fill="var(--gpu)">transformer_lib — statically linked, same process</text>
+
+<text class="t-edge" x="48" y="282">TRAINING</text>
+<rect class="box-gpu" x="48" y="292" width="320" height="38" rx="3"/>
+<text class="t-name" x="208" y="316" text-anchor="middle">make_bucketed_batches</text>
+<rect class="box-gpu" x="48" y="340" width="320" height="38" rx="3"/>
+<text class="t-name" x="208" y="364" text-anchor="middle">train_step_graphed</text>
+<rect class="box-gpu" x="48" y="388" width="320" height="38" rx="3"/>
+<text class="t-name" x="208" y="412" text-anchor="middle">update(noam_lr)</text>
+
+<text class="t-edge" x="390" y="282">EVALUATION</text>
+<rect class="box-gpu" x="390" y="292" width="320" height="38" rx="3"/>
+<text class="t-name" x="550" y="316" text-anchor="middle">forward (validation)</text>
+<rect class="box-gpu" x="390" y="340" width="320" height="38" rx="3"/>
+<text class="t-name" x="550" y="364" text-anchor="middle">greedy decoding</text>
+<rect class="box-gpu" x="390" y="388" width="320" height="38" rx="3"/>
+<text class="t-name" x="550" y="412" text-anchor="middle">corpus_bleu</text>
+
+<text class="t-edge" x="732" y="282">INFERENCE</text>
+<rect class="box-gpu" x="732" y="292" width="320" height="38" rx="3"/>
+<text class="t-name" x="892" y="316" text-anchor="middle">tok.encode (lowercase)</text>
+<rect class="box-gpu" x="732" y="340" width="320" height="38" rx="3"/>
+<text class="t-name" x="892" y="364" text-anchor="middle">beam_search</text>
+<rect class="box-gpu" x="732" y="388" width="320" height="38" rx="3"/>
+<text class="t-name" x="892" y="412" text-anchor="middle">tok.decode</text>
+
+<line class="ln" x1="208" y1="330" x2="208" y2="336" marker-end="url(#a)"/>
+<line class="ln" x1="208" y1="378" x2="208" y2="384" marker-end="url(#a)"/>
+<line class="ln" x1="550" y1="330" x2="550" y2="336" marker-end="url(#a)"/>
+<line class="ln" x1="550" y1="378" x2="550" y2="384" marker-end="url(#a)"/>
+<line class="ln" x1="892" y1="330" x2="892" y2="336" marker-end="url(#a)"/>
+<line class="ln" x1="892" y1="378" x2="892" y2="384" marker-end="url(#a)"/>
+
+<line class="ln" x1="340" y1="444" x2="340" y2="482" marker-end="url(#a)"/>
+<text class="t-edge" x="352" y="468">kernels · memory</text>
+<line class="ln" x1="880" y1="444" x2="880" y2="482" marker-end="url(#a)"/>
+<text class="t-edge" x="868" y="468" text-anchor="end">save-best · load</text>
+
+<rect class="box-gpu" x="30" y="486" width="620" height="124" rx="5"/>
+<text class="t-lane" x="48" y="510" fill="var(--gpu)">CUDA — VRAM</text>
+<rect class="box-n" x="48" y="522" width="136" height="32" rx="3"/>
+<text class="t-name" x="116" y="543" text-anchor="middle">DevicePool</text>
+<rect class="box-n" x="198" y="522" width="136" height="32" rx="3"/>
+<text class="t-name" x="266" y="543" text-anchor="middle">CUDA Graphs</text>
+<rect class="box-n" x="348" y="522" width="136" height="32" rx="3"/>
+<text class="t-name" x="416" y="543" text-anchor="middle">cuBLAS · cuRAND</text>
+<rect class="box-n" x="498" y="522" width="136" height="32" rx="3"/>
+<text class="t-name" x="566" y="543" text-anchor="middle">custom kernels</text>
+<text class="t-small" x="48" y="580">weights, activations and Adam state resident · allocations recycled, bounded budget</text>
+
+<rect class="box-cpu" x="690" y="486" width="380" height="124" rx="5"/>
+<text class="t-lane" x="708" y="510" fill="var(--cpu)">DISK</text>
+<rect class="box-n" x="708" y="522" width="344" height="32" rx="3"/>
+<text class="t-name" x="880" y="543" text-anchor="middle">translate_model.bin</text>
+<rect class="box-n" x="708" y="562" width="344" height="32" rx="3"/>
+<text class="t-name" x="880" y="583" text-anchor="middle">translate_tok.bin</text>
+</svg>

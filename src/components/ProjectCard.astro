@@ -1,19 +1,22 @@
 ---
-import { CATEGORIES, type Project } from "../data/projects";
+import { CATEGORIES, STATUS_LABELS, type Project } from "../data/projects";
+import { projectUrl, t, ui, type Lang } from "../i18n";
 
 interface Props {
   project: Project;
+  lang: Lang;
   featured?: boolean;
 }
 
-const { project, featured = false } = Astro.props;
+const { project, lang, featured = false } = Astro.props;
 
 const thumb = project.media?.find((m) => m.type === "image");
 const category = CATEGORIES[project.category];
+const title = t(project.title, lang);
 
 // Initiales de repli quand le projet n'a pas encore d'illustration.
 // On coupe aussi sur les majuscules internes : "ConvNetwork" → "CN".
-const glyph = project.title
+const glyph = title
   .split(/[\s-]+/)
   .flatMap((word) => word.split(/(?=[A-Z])/))
   .filter(Boolean)
@@ -21,17 +24,19 @@ const glyph = project.title
   .join("")
   .slice(0, 2)
   .toUpperCase();
+
+const visibleStack = featured ? 5 : 3;
 ---
 
 <a
   class:list={["card", { featured, "has-thumb": !!thumb }]}
-  href={`/projets/${project.slug}`}
+  href={projectUrl(project.slug, lang)}
   data-category={project.category}
   style={`--accent-hsl: ${project.accent}`}
 >
   <div class="card-visual">
     {
-      thumb ? (
+      thumb && thumb.type === "image" ? (
         <img src={thumb.src} alt="" loading="lazy" />
       ) : (
         <span class="glyph mono" aria-hidden="true">
@@ -39,29 +44,31 @@ const glyph = project.title
         </span>
       )
     }
-    <span class="card-cat mono">{category.short}</span>
+    <span class="card-cat mono">{t(category.short, lang)}</span>
   </div>
 
   <div class="card-body">
     <div class="card-meta">
-      <span class="pill pill-dot status" data-status={project.status}>{project.status}</span>
-      <span class="pill">{project.period}</span>
+      <span class="pill pill-dot status" data-status={project.status}>
+        {t(STATUS_LABELS[project.status], lang)}
+      </span>
+      <span class="pill">{t(project.period, lang)}</span>
     </div>
 
-    <h3 class="card-title">{project.title}</h3>
-    <p class="card-tagline">{project.tagline}</p>
+    <h3 class="card-title">{title}</h3>
+    <p class="card-tagline">{t(project.tagline, lang)}</p>
 
     <div class="card-stack">
-      {project.stack.slice(0, featured ? 5 : 3).map((tech) => <span class="chip">{tech}</span>)}
+      {project.stack.slice(0, visibleStack).map((tech) => <span class="chip">{tech}</span>)}
       {
-        project.stack.length > (featured ? 5 : 3) && (
-          <span class="chip">+{project.stack.length - (featured ? 5 : 3)}</span>
+        project.stack.length > visibleStack && (
+          <span class="chip">+{project.stack.length - visibleStack}</span>
         )
       }
     </div>
 
     <span class="card-cta">
-      Voir le projet
+      {t(ui.viewProject, lang)}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M5 12h14M13 6l6 6-6 6"></path>
       </svg>
@@ -157,7 +164,7 @@ const glyph = project.title
     gap: 7px;
   }
 
-  .status[data-status="En cours"] {
+  .status[data-status="ongoing"] {
     color: var(--accent-2);
     border-color: color-mix(in srgb, var(--accent-2) 40%, transparent);
   }

@@ -1,6 +1,6 @@
 ---
-import ProjectDetail from "../../components/pages/ProjectDetail.astro";
-import { projects } from "../../data/projects";
+import ProjectDetail from "../../../components/pages/ProjectDetail.astro";
+import { projects } from "../../../data/projects";
 
 export function getStaticPaths() {
   return projects.map((project) => ({
@@ -12,4 +12,4 @@ export function getStaticPaths() {
 const { project } = Astro.props;
 ---
 
-<ProjectDetail project={project} lang="fr" />
+<ProjectDetail project={project} lang="en" />

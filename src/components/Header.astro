@@ -1,16 +1,28 @@
 ---
 import ThemeToggle from "./ThemeToggle.astro";
 import { site } from "../data/site";
+import { ROUTES, alternateUrl, t, ui, type Lang } from "../i18n";
 
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
 const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
 
 const links = [
-  { href: "/", label: "Accueil" },
-  { href: "/projets", label: "Projets" },
-  { href: "/parcours", label: "Parcours" },
+  { href: t(ROUTES.home, lang), label: t(ui.navHome, lang), exact: true },
+  { href: t(ROUTES.projects, lang), label: t(ui.navProjects, lang), exact: false },
+  { href: t(ROUTES.about, lang), label: t(ui.navAbout, lang), exact: false },
 ];
 
-const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+const isActive = (href: string, exact: boolean) => {
+  const clean = href.replace(/\/+$/, "") || "/";
+  return exact ? path === clean : path.startsWith(clean);
+};
+
+const other: Lang = lang === "fr" ? "en" : "fr";
+const otherUrl = alternateUrl(path, other);
 
 const initials = site.name
   .split(/[\s-]+/)
@@ -23,18 +35,18 @@ const initials = site.name
 
 <header class="header">
   <div class="container header-inner">
-    <a class="brand" href="/">
+    <a class="brand" href={t(ROUTES.home, lang)}>
       <span class="mark" aria-hidden="true">{initials}</span>
       <span class="brand-text">
         <span class="brand-name">{site.name}</span>
-        <span class="brand-role mono">Systèmes embarqués · IA</span>
+        <span class="brand-role mono">{t(ui.brandRole, lang)}</span>
       </span>
     </a>
 
-    <nav class="nav" aria-label="Navigation principale">
+    <nav class="nav" aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"}>
       {
         links.map((link) => (
-          <a href={link.href} class:list={["nav-link", { active: isActive(link.href) }]}>
+          <a href={link.href} class:list={["nav-link", { active: isActive(link.href, link.exact) }]}>
             {link.label}
           </a>
         ))
@@ -42,14 +54,17 @@ const initials = site.name
     </nav>
 
     <div class="actions">
+      <a class="lang-switch mono" href={otherUrl} hreflang={other} title={t(ui.switchLang, lang)}>
+        {other.toUpperCase()}
+      </a>
       {
         site.links.cv && (
           <a class="btn btn-sm btn-primary cv-btn" href={site.links.cv} download>
-            CV
+            {lang === "fr" ? "CV" : "CV"}
           </a>
         )
       }
-      <ThemeToggle />
+      <ThemeToggle lang={lang} />
     </div>
   </div>
 </header>
@@ -150,13 +165,36 @@ const initials = site.name
     gap: 10px;
   }
 
-  @media (max-width: 860px) {
+  .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 12px;
+    border-radius: var(--pill);
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  }
+
+  .lang-switch:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 900px) {
     .brand-role {
       display: none;
     }
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 720px) {
     .header-inner {
       height: 62px;
       gap: 10px;
@@ -173,6 +211,11 @@ const initials = site.name
 
     .cv-btn {
       display: none;
+    }
+
+    .lang-switch {
+      height: 34px;
+      padding: 0 9px;
     }
   }
 </style>

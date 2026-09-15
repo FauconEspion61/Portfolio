@@ -1,0 +1,168 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ProjectCard from "../ProjectCard.astro";
+import { site } from "../../data/site";
+import { projects, CATEGORIES, usedCategories } from "../../data/projects";
+import { t, ui, type Lang } from "../../i18n";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const filters = [
+  { key: "all", label: t(ui.filterAll, lang), count: projects.length },
+  ...usedCategories().map((key) => ({
+    key,
+    label: t(CATEGORIES[key].short, lang),
+    count: projects.filter((p) => p.category === key).length,
+  })),
+];
+---
+
+<Layout
+  lang={lang}
+  title={`${t(ui.navProjects, lang)} — ${site.name}`}
+  description={t(ui.projectsLead, lang)}
+>
+  <section class="page-head">
+    <div class="aurora" aria-hidden="true"><i class="a1"></i></div>
+    <div class="container head-inner">
+      <p class="eyebrow" data-reveal>{t(ui.navProjects, lang)}</p>
+      <h1 data-reveal style="--reveal-delay: 60ms">{t(ui.projectsTitle, lang)}</h1>
+      <p class="lead" data-reveal style="--reveal-delay: 120ms">{t(ui.projectsLead, lang)}</p>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container">
+      <div class="filters" role="group" aria-label={t(ui.filterLabel, lang)} data-reveal>
+        {
+          filters.map((filter, i) => (
+            <button
+              type="button"
+              class:list={["filter", { "is-active": i === 0 }]}
+              data-filter={filter.key}
+            >
+              {filter.label}
+              <span class="count mono">{filter.count}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="grid" id="project-grid">
+        {
+          projects.map((project, i) => (
+            <div class="grid-item" data-category={project.category} data-reveal style={`--reveal-delay: ${i * 70}ms`}>
+              <ProjectCard project={project} lang={lang} />
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="empty" id="empty-state" hidden>{t(ui.emptyCategory, lang)}</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-head {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(50px, 8vw, 86px) 0 clamp(28px, 4vw, 44px);
+  }
+
+  .head-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .head-inner h1 {
+    font-size: clamp(2.1rem, 6vw, 3.6rem);
+    margin-bottom: 16px;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 30px;
+  }
+
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 17px;
+    border-radius: var(--pill);
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+  }
+
+  .filter:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
+  .filter.is-active {
+    background: var(--accent);
+    border-color: transparent;
+    color: var(--accent-ink);
+    box-shadow: 0 10px 26px -14px var(--glow-1);
+  }
+
+  .count {
+    font-size: 0.72rem;
+    opacity: 0.7;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 22px;
+  }
+
+  .grid-item {
+    display: flex;
+  }
+
+  .grid-item > :global(.card) {
+    width: 100%;
+  }
+
+  .empty {
+    padding: 56px 0;
+    text-align: center;
+    color: var(--text-muted);
+  }
+</style>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-filter]");
+  const items = document.querySelectorAll<HTMLElement>(".grid-item");
+  const empty = document.getElementById("empty-state");
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const filter = button.dataset.filter;
+      buttons.forEach((other) => other.classList.toggle("is-active", other === button));
+
+      let visible = 0;
+      items.forEach((item) => {
+        const show = filter === "all" || item.dataset.category === filter;
+        item.hidden = !show;
+        if (show) visible += 1;
+      });
+
+      if (empty) empty.hidden = visible > 0;
+    });
+  });
+</script>

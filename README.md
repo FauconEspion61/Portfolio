@@ -20,6 +20,16 @@ Tout le contenu éditable se trouve dans deux fichiers, pas besoin de toucher au
 
 > ⚠️ Après avoir modifié `projects.ts` (ajout/suppression d'un projet, changement de `slug`), redémarre `npm run dev` : les nouvelles routes `/projets/<slug>` ne sont pas toujours prises en compte à chaud.
 
+### Site bilingue (français / anglais)
+
+Le site existe en deux langues : le français à la racine (`/`, `/projets`, `/parcours`) et l'anglais sous `/en/` (`/en/`, `/en/projects`, `/en/background`). Un sélecteur dans le header bascule d'une langue à l'autre **en restant sur la même page**.
+
+Chaque champ traduisible est un objet `{ fr, en }`. C'est volontaire : si tu ajoutes un projet ou une ligne de CV en oubliant sa version anglaise, **`npm run build` échoue** au lieu de publier un site à moitié traduit. C'est la raison pour laquelle le script `build` lance `astro check` avant `astro build` — ne le retire pas, c'est lui qui fait la vérification. (`npm run build:fast` saute le contrôle si tu es pressé.)
+
+Les chaînes d'interface (menus, boutons, titres de section) vivent toutes dans [`src/i18n/index.ts`](src/i18n/index.ts), avec les segments d'URL traduits.
+
+**Les schémas SVG ont leur texte gravé dedans** : chacun a donc un jumeau anglais dans un sous-dossier `en/`, et le champ `src` d'un média de type `diagram` attend les deux chemins. Là encore, le typage refuse d'en oublier un.
+
 ### Projets perso / école / recherche
 
 Chaque projet porte une `category` : `"perso"`, `"ecole"` ou `"recherche"`. Elle pilote :

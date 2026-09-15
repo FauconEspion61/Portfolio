@@ -1,36 +1,43 @@
 ---
 import { site } from "../data/site";
+import { ROUTES, t, ui, type Lang } from "../i18n";
 
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
 const year = new Date().getFullYear();
+const cvHref = lang === "en" ? (site.links.cvEn ?? site.links.cv) : site.links.cv;
 ---
 
 <footer class="footer">
   <div class="container footer-inner">
     <div class="footer-main">
       <p class="footer-name">{site.name}</p>
-      <p class="footer-tagline">{site.tagline}</p>
+      <p class="footer-tagline">{t(site.tagline, lang)}</p>
       <a class="footer-mail" href={`mailto:${site.email}`}>{site.email}</a>
     </div>
 
     <div class="footer-cols">
       <div class="footer-col">
-        <p class="footer-title mono">Navigation</p>
-        <a href="/">Accueil</a>
-        <a href="/projets">Projets</a>
-        <a href="/parcours">Parcours</a>
+        <p class="footer-title mono">{t(ui.footerNav, lang)}</p>
+        <a href={t(ROUTES.home, lang)}>{t(ui.navHome, lang)}</a>
+        <a href={t(ROUTES.projects, lang)}>{t(ui.navProjects, lang)}</a>
+        <a href={t(ROUTES.about, lang)}>{t(ui.navAbout, lang)}</a>
       </div>
       <div class="footer-col">
-        <p class="footer-title mono">Liens</p>
+        <p class="footer-title mono">{t(ui.footerLinks, lang)}</p>
         {site.links.github && <a href={site.links.github} target="_blank" rel="noreferrer">GitHub</a>}
         {site.links.linkedin && <a href={site.links.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>}
-        {site.links.cv && <a href={site.links.cv} download>CV (PDF)</a>}
+        {cvHref && <a href={cvHref} download>{t(ui.footerCv, lang)}</a>}
       </div>
     </div>
   </div>
 
   <div class="container footer-bottom">
     <span>&copy; {year} {site.name}</span>
-    <span class="mono">Construit avec Astro</span>
+    <span class="mono">{t(ui.builtWith, lang)}</span>
   </div>
 </footer>
 

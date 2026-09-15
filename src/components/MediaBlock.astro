@@ -1,13 +1,18 @@
 ---
 import fs from "node:fs";
 import path from "node:path";
-import type { ProjectMedia } from "../data/projects";
+import { mediaSrc, type ProjectMedia } from "../data/projects";
+import { t, type Lang } from "../i18n";
 
 interface Props {
   item: ProjectMedia;
+  lang: Lang;
 }
 
-const { item } = Astro.props;
+const { item, lang } = Astro.props;
+const src = mediaSrc(item, lang);
+const alt = t(item.alt, lang);
+const caption = item.caption ? t(item.caption, lang) : null;
 
 /**
  * Les schémas SVG sont injectés directement dans la page (plutôt que via <img>)
@@ -15,9 +20,9 @@ const { item } = Astro.props;
  * la préférence clair/sombre du système d'exploitation.
  */
 let inlineSvg: string | null = null;
-if (item.type === "diagram" && item.src.endsWith(".svg")) {
+if (item.type === "diagram" && src.endsWith(".svg")) {
   try {
-    inlineSvg = fs.readFileSync(path.join(process.cwd(), "public", item.src), "utf-8");
+    inlineSvg = fs.readFileSync(path.join(process.cwd(), "public", src), "utf-8");
   } catch {
     inlineSvg = null;
   }
@@ -27,16 +32,16 @@ if (item.type === "diagram" && item.src.endsWith(".svg")) {
 <figure class:list={["media-block", { diagram: item.type === "diagram" }]}>
   {
     item.type === "video" ? (
-      <video autoplay muted loop playsinline aria-label={item.alt}>
-        <source src={item.src} />
+      <video autoplay muted loop playsinline aria-label={alt}>
+        <source src={src} />
       </video>
     ) : inlineSvg ? (
       <div class="svg-holder" set:html={inlineSvg} />
     ) : (
-      <img src={item.src} alt={item.alt} loading="lazy" />
+      <img src={src} alt={alt} loading="lazy" />
     )
   }
-  {item.caption && <figcaption>{item.caption}</figcaption>}
+  {caption && <figcaption>{caption}</figcaption>}
 </figure>
 
 <style>
@@ -79,7 +84,6 @@ if (item.type === "diagram" && item.src.endsWith(".svg")) {
     background: #000;
   }
 
-
   .media-block.diagram img {
     background: var(--bg-elev);
     padding: 18px;
@@ -106,5 +110,14 @@ if (item.type === "diagram" && item.src.endsWith(".svg")) {
     --gpu: var(--diagram-gpu);
     --cpuSoft: var(--diagram-cpu-soft);
     --gpuSoft: var(--diagram-gpu-soft);
+  }
+
+  .media-block figcaption {
+    margin-top: 10px;
+    padding-left: 14px;
+    border-left: 2px solid var(--border-strong);
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: var(--text-muted);
   }
 </style>

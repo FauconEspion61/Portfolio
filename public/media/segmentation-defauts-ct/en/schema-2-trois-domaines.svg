@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 1132 432" width="1132" height="432" role="img" aria-label="Three datasets follow one another: 63 medical CT volumes are used for pre-training, 90 automatically annotated printed parts drive the data-efficiency study, and 9 real industrial parts serve as final validation. Two findings: fine-tuning on seven real parts beats training on nine times as many printed parts, and medical CT is distributionally closer to the real domain than the printed set is.">
+<title>Three imaging domains, one question of data efficiency</title>
+<style>
+svg{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#131A1F;--muted:#59686F;--line:#C3CDD2;--cpu:#2F6382;--gpu:#A85C1B;--cpuSoft:#E1ECF3;--gpuSoft:#F7E9DB;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){svg{--bg:#0F1418;--surface:#171E23;--ink:#E5EBEE;--muted:#93A3AC;--line:#2C3841;--cpu:#79B4D8;--gpu:#E19A57;--cpuSoft:#16242E;--gpuSoft:#2A1F14}}
+.bg{fill:var(--bg)}
+.t-name{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:12.5px;font-weight:500;fill:var(--ink)}
+.t-big{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:19px;font-weight:600;fill:var(--ink)}
+.t-sub{font-size:10.5px;fill:var(--muted)}
+.t-lane{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em}
+.t-edge{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:10.5px;fill:var(--muted)}
+.box-n{fill:var(--surface);stroke:var(--line);stroke-width:1.3}
+.box-cpu{fill:var(--surface);stroke:var(--cpu);stroke-width:1.6}
+.box-gpu{fill:var(--surface);stroke:var(--gpu);stroke-width:1.6}
+.ln{stroke:var(--ink);stroke-width:1.4;fill:none}
+.ln-gpu{stroke:var(--gpu);stroke-width:1.6;fill:none}
+.find{fill:var(--gpuSoft);stroke:var(--gpu);stroke-width:1.2}
+.a-ink{fill:var(--ink)}.a-gpu{fill:var(--gpu)}
+</style>
+<defs>
+<marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-ink" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+<marker id="g" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-gpu" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+</defs>
+<rect class="bg" x="-16" y="-16" width="1132" height="432"/>
+
+<text class="t-lane" x="40" y="30" fill="var(--muted)">THE PROJECT'S THREE IMAGING DOMAINS</text>
+
+<rect class="box-cpu" x="40" y="52" width="316" height="118" rx="4"/>
+<text class="t-lane" x="60" y="78" fill="var(--cpu)">SOURCE — MEDICAL</text>
+<text class="t-big" x="60" y="106">63 volumes</text>
+<text class="t-sub" x="60" y="126">public chest CT (Task06_Lung)</text>
+<text class="t-sub" x="60" y="142">abundant, annotated, documented</text>
+<text class="t-sub" x="60" y="158">→ pre-training checkpoint</text>
+
+<rect class="box-n" x="398" y="52" width="316" height="118" rx="4"/>
+<text class="t-lane" x="418" y="78" fill="var(--muted)">SURROGATE — PRINTED</text>
+<text class="t-big" x="418" y="106">90 parts</text>
+<text class="t-sub" x="418" y="126">manufactured and auto-annotated</text>
+<text class="t-sub" x="418" y="142">designed defects, free ground truth</text>
+<text class="t-sub" x="418" y="158">→ efficiency curve, N = 5 … 63</text>
+
+<rect class="box-gpu" x="756" y="52" width="324" height="118" rx="4"/>
+<text class="t-lane" x="776" y="78" fill="var(--gpu)">TARGET — REAL INDUSTRIAL</text>
+<text class="t-big" x="776" y="106">9 parts</text>
+<text class="t-sub" x="776" y="126">genuine machining defects</text>
+<text class="t-sub" x="776" y="142">masks hand-corrected (3D Slicer)</text>
+<text class="t-sub" x="776" y="158">→ leave-one-out cross-validation</text>
+
+<line class="ln" x1="356" y1="111" x2="394" y2="111" marker-end="url(#a)"/>
+<text class="t-edge" x="375" y="100" text-anchor="middle">pre-training</text>
+
+<line class="ln" x1="714" y1="111" x2="752" y2="111" marker-end="url(#a)"/>
+<text class="t-edge" x="733" y="100" text-anchor="middle">transfer</text>
+
+<rect class="find" x="40" y="212" width="1040" height="86" rx="6"/>
+<text class="t-lane" x="60" y="238" fill="var(--gpu)">HEADLINE RESULT</text>
+<text class="t-name" x="60" y="264">Fine-tuning on 7 real parts beats training on 63 printed ones — Dice multiplied by 1.8 to 2.1.</text>
+<text class="t-sub" x="60" y="284">A handful of target-domain data is worth more than nine times the volume of surrogate data.</text>
+
+<rect class="box-n" x="40" y="322" width="1040" height="78" rx="6"/>
+<text class="t-lane" x="60" y="348" fill="var(--muted)">SIDE ANALYSIS — DOMAIN SIMILARITY</text>
+<text class="t-name" x="60" y="374">Medical CT is closer to the real domain (Wasserstein 0.159) than the printed set is (0.402).</text>
+<text class="t-sub" x="60" y="392">Counter-intuitive: the odd one out is not the medical domain but the purpose-built one — printed parts are almost solid.</text>
+</svg>
