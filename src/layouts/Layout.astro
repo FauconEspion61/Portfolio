@@ -1,6 +1,7 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import LanguageGate from "../components/LanguageGate.astro";
 import { site } from "../data/site";
 import { alternateUrl, t, type Lang } from "../i18n";
 import "../styles/global.css";
@@ -71,6 +72,7 @@ const origin = Astro.site?.origin ?? "";
       { fr: "Aller au contenu", en: "Skip to content" },
       lang,
     )}</a>
+    <LanguageGate />
     <Header lang={lang} />
     <main id="main">
       <slot />

@@ -1,0 +1,258 @@
+---
+// La langue courante est lue côté client depuis `document.documentElement.lang`,
+// ce composant n'a donc pas besoin qu'on la lui passe.
+import { alternateUrl } from "../i18n";
+
+const path = Astro.url.pathname;
+
+const frUrl = alternateUrl(path, "fr");
+const enUrl = alternateUrl(path, "en");
+---
+
+{/*
+  Fenêtre de choix de langue, affichée uniquement à la toute première visite.
+
+  Elle est `hidden` dans le HTML et n'est révélée que par JavaScript, en
+  l'absence de préférence enregistrée. Deux conséquences voulues :
+  - les moteurs de recherche et les visiteurs sans JS voient directement le
+    contenu, jamais une page bloquée ;
+  - un visiteur qui revient ne voit aucun clignotement, la fenêtre restant
+    masquée dès le rendu.
+*/}
+<div
+  id="lang-gate"
+  class="gate"
+  hidden
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="gate-title"
+>
+  <div class="gate-card">
+    <p class="gate-eyebrow mono">Portfolio — Paul FOLTZER</p>
+
+    <h2 id="gate-title">
+      Choisissez votre langue
+      <span class="gate-title-en">Choose your language</span>
+    </h2>
+
+    <div class="gate-actions">
+      <a class="gate-btn" href={frUrl} data-gate-lang="fr" hreflang="fr">
+        <span class="gate-code mono" aria-hidden="true">FR</span>
+        <span class="gate-name">Français</span>
+        <span class="gate-hint" data-gate-hint>Langue détectée</span>
+      </a>
+      <a class="gate-btn" href={enUrl} data-gate-lang="en" hreflang="en">
+        <span class="gate-code mono" aria-hidden="true">EN</span>
+        <span class="gate-name">English</span>
+        <span class="gate-hint" data-gate-hint>Detected language</span>
+      </a>
+    </div>
+
+    <p class="gate-note">
+      Vous pourrez changer à tout moment depuis le menu.
+      <span>You can switch at any time from the menu.</span>
+    </p>
+  </div>
+</div>
+
+<style>
+  .gate {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .gate-card {
+    position: relative;
+    width: min(460px, 100%);
+    padding: clamp(28px, 5vw, 40px);
+    text-align: center;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) + 4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Filet dégradé en haut de la carte, comme les cartes projet. */
+  .gate-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    border-radius: calc(var(--radius) + 4px) calc(var(--radius) + 4px) 0 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+
+  .gate-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  #gate-title {
+    font-size: clamp(1.25rem, 3.5vw, 1.5rem);
+    line-height: 1.25;
+    margin-bottom: 26px;
+  }
+
+  .gate-title-en {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: -0.01em;
+  }
+
+  .gate-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .gate-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 18px 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-sunken);
+    color: var(--text);
+    text-decoration: none;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .gate-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .gate-code {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .gate-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  /* L'indice n'apparaît que sur la langue détectée par le navigateur. */
+  .gate-hint {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    opacity: 0;
+    min-height: 1em;
+  }
+
+  .gate-btn.is-suggested {
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    background: var(--bg-elev);
+  }
+
+  .gate-btn.is-suggested .gate-hint {
+    opacity: 1;
+  }
+
+  .gate-note {
+    margin-top: 22px;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+  }
+
+  .gate-note span {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gate-btn {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .gate-actions {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const KEY = "lang";
+  const gate = document.getElementById("lang-gate");
+  if (gate) {
+    const current = document.documentElement.lang === "en" ? "en" : "fr";
+
+    const remember = (value: string) => {
+      try {
+        localStorage.setItem(KEY, value);
+      } catch {}
+    };
+
+    const close = () => {
+      gate.hidden = true;
+      document.body.style.removeProperty("overflow");
+    };
+
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem(KEY);
+    } catch {}
+
+    // Première visite seulement : aucune préférence enregistrée.
+    if (!stored) {
+      const detected = (navigator.language || "").toLowerCase().startsWith("fr") ? "fr" : "en";
+      gate.querySelector(`[data-gate-lang="${detected}"]`)?.classList.add("is-suggested");
+
+      gate.hidden = false;
+      document.body.style.overflow = "hidden";
+      gate.querySelector<HTMLAnchorElement>(`[data-gate-lang="${detected}"]`)?.focus();
+
+      gate.querySelectorAll<HTMLAnchorElement>("[data-gate-lang]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          const choice = link.dataset.gateLang!;
+          remember(choice);
+          // Déjà dans la bonne langue : inutile de recharger la page.
+          if (choice === current) {
+            event.preventDefault();
+            close();
+          }
+        });
+      });
+
+      // Échap = rester dans la langue affichée, sans reposer la question.
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !gate.hidden) {
+          remember(current);
+          close();
+        }
+      });
+    }
+
+    // Le sélecteur du header vaut aussi choix explicite : on le mémorise.
+    document.querySelectorAll<HTMLAnchorElement>(".lang-switch").forEach((link) => {
+      link.addEventListener("click", () => remember(current === "fr" ? "en" : "fr"));
+    });
+  }
+</script>
