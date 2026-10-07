@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 1132 472" width="1132" height="472" role="img" aria-label="Sur la ZedBoard, un MMCM transforme l'horloge 100 MHz de la carte en 150 MHz. Un bouton lance une FSM à dix états qui lit les blocs de données dans une mémoire bloc via un compteur d'adresse, les présente au cœur ASCON, puis attend le tag. Deux multiplexeurs pilotés par les interrupteurs choisissent quel octet du chiffré ou du tag est affiché sur les huit LEDs.">
+<title>ASCON sur ZedBoard — la couche d'intégration</title>
+<style>
+svg{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#131A1F;--muted:#59686F;--line:#C3CDD2;--cpu:#2F6382;--gpu:#A85C1B;--cpuSoft:#E1ECF3;--gpuSoft:#F7E9DB;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){svg{--bg:#0F1418;--surface:#171E23;--ink:#E5EBEE;--muted:#93A3AC;--line:#2C3841;--cpu:#79B4D8;--gpu:#E19A57;--cpuSoft:#16242E;--gpuSoft:#2A1F14}}
+.bg{fill:var(--bg)}
+.t-name{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:12.5px;font-weight:500;fill:var(--ink)}
+.t-sub{font-size:10.5px;fill:var(--muted)}
+.t-lane{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em}
+.t-edge{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:10.5px;fill:var(--muted)}
+.t-small{font-size:10px;fill:var(--muted)}
+.box-cpu{fill:var(--surface);stroke:var(--cpu);stroke-width:1.4}
+.box-gpu{fill:var(--surface);stroke:var(--gpu);stroke-width:1.6}
+.box-n{fill:var(--surface);stroke:var(--line);stroke-width:1.3}
+.lane-cpu{fill:var(--cpuSoft);stroke:var(--cpu);stroke-width:1}
+.ln{stroke:var(--ink);stroke-width:1.4;fill:none}
+.ln-cpu{stroke:var(--cpu);stroke-width:1.4;fill:none;stroke-dasharray:4 3}
+.a-ink{fill:var(--ink)}.a-cpu{fill:var(--cpu)}
+</style>
+<defs>
+<marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-ink" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+<marker id="c" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><polygon class="a-cpu" points="0,0.6 8.4,4.5 0,8.4"/></marker>
+</defs>
+<rect class="bg" x="-16" y="-16" width="1132" height="472"/>
+
+<text class="t-lane" x="40" y="26" fill="var(--muted)">ZEDBOARD — ZYNQ-7020 (xc7z020)</text>
+
+<!-- Entrées carte -->
+<rect class="lane-cpu" x="20" y="44" width="240" height="196" rx="6"/>
+<text class="t-lane" x="38" y="68" fill="var(--cpu)">ENTRÉES CARTE</text>
+
+<rect class="box-cpu" x="38" y="84" width="204" height="44" rx="3"/>
+<text class="t-name" x="140" y="104" text-anchor="middle">horloge 100 MHz</text>
+<text class="t-sub" x="140" y="119" text-anchor="middle">oscillateur de la carte</text>
+
+<rect class="box-cpu" x="38" y="138" width="204" height="40" rx="3"/>
+<text class="t-name" x="140" y="163" text-anchor="middle">bouton start · reset</text>
+
+<rect class="box-cpu" x="38" y="188" width="204" height="40" rx="3"/>
+<text class="t-name" x="140" y="206" text-anchor="middle">5 interrupteurs</text>
+<text class="t-sub" x="140" y="221" text-anchor="middle">sel_val · sel_bits</text>
+
+<!-- MMCM -->
+<rect class="box-n" x="288" y="84" width="150" height="44" rx="3"/>
+<text class="t-name" x="363" y="104" text-anchor="middle">MMCM</text>
+<text class="t-sub" x="363" y="119" text-anchor="middle">100 → 150 MHz</text>
+<line class="ln" x1="242" y1="106" x2="284" y2="106" marker-end="url(#a)"/>
+
+<!-- FSM pilote -->
+<rect class="box-n" x="288" y="148" width="150" height="80" rx="3"/>
+<text class="t-name" x="363" y="172" text-anchor="middle">FSM pilote</text>
+<text class="t-sub" x="363" y="190" text-anchor="middle">10 états</text>
+<text class="t-sub" x="363" y="206" text-anchor="middle">lit, présente,</text>
+<text class="t-sub" x="363" y="221" text-anchor="middle">attend, incrémente</text>
+<line class="ln" x1="242" y1="158" x2="284" y2="170" marker-end="url(#a)"/>
+
+<!-- Mémoire + compteur -->
+<rect class="box-n" x="478" y="74" width="160" height="56" rx="3"/>
+<text class="t-name" x="558" y="96" text-anchor="middle">mémoire bloc</text>
+<text class="t-sub" x="558" y="112" text-anchor="middle">blocs de 64 bits</text>
+<text class="t-sub" x="558" y="124" text-anchor="middle">donnée associée + texte clair</text>
+
+<rect class="box-n" x="478" y="148" width="160" height="44" rx="3"/>
+<text class="t-name" x="558" y="168" text-anchor="middle">compteur</text>
+<text class="t-sub" x="558" y="183" text-anchor="middle">adresse de lecture</text>
+
+<line class="ln" x1="438" y1="186" x2="474" y2="170" marker-end="url(#a)"/>
+<line class="ln" x1="558" y1="144" x2="558" y2="134" marker-end="url(#a)"/>
+
+<!-- Coeur ASCON -->
+<rect class="box-gpu" x="688" y="74" width="200" height="154" rx="4"/>
+<text class="t-lane" x="708" y="100" fill="var(--gpu)">CŒUR ASCON</text>
+<text class="t-sub" x="708" y="124">RTL SystemVerilog</text>
+<text class="t-sub" x="708" y="142">FSM de Moore à 26 états</text>
+<text class="t-sub" x="708" y="160">permutation 320 bits</text>
+<text class="t-sub" x="708" y="178">1 tour par cycle</text>
+<text class="t-sub" x="708" y="202">sorties : chiffré 64 b</text>
+<text class="t-sub" x="708" y="218">tag 128 b</text>
+
+<line class="ln" x1="638" y1="102" x2="684" y2="112" marker-end="url(#a)"/>
+<text class="t-edge" x="662" y="96" text-anchor="middle">data</text>
+<line class="ln" x1="438" y1="160" x2="458" y2="160"/>
+<path class="ln" d="M 458 160 L 458 252 L 788 252 L 788 232" marker-end="url(#a)"/>
+<text class="t-edge" x="620" y="268" text-anchor="middle">init · associate_data · finalisation · data_valid</text>
+
+<path class="ln-cpu" d="M 888 196 L 928 196 L 928 290 L 363 290 L 363 232" marker-end="url(#c)"/>
+<text class="t-edge" x="650" y="306" text-anchor="middle" fill="var(--cpu)">end_initialisation · end_associate · cipher_valid · end_tag — la FSM attend ces accusés</text>
+
+<!-- Sortie : mux + LEDs -->
+<rect class="box-n" x="688" y="344" width="200" height="60" rx="3"/>
+<text class="t-name" x="788" y="366" text-anchor="middle">deux multiplexeurs</text>
+<text class="t-sub" x="788" y="382" text-anchor="middle">chiffré ou tag,</text>
+<text class="t-sub" x="788" y="396" text-anchor="middle">puis 1 octet parmi 16</text>
+<line class="ln" x1="788" y1="232" x2="788" y2="340" marker-end="url(#a)"/>
+
+<rect class="box-cpu" x="938" y="344" width="118" height="60" rx="3"/>
+<text class="t-name" x="997" y="368" text-anchor="middle">8 LEDs</text>
+<text class="t-sub" x="997" y="384" text-anchor="middle">1 octet affiché</text>
+<line class="ln" x1="888" y1="374" x2="934" y2="374" marker-end="url(#a)"/>
+
+<path class="ln" d="M 140 228 L 140 374 L 684 374" marker-end="url(#a)"/>
+<text class="t-edge" x="340" y="366">les interrupteurs choisissent l'octet à lire</text>
+
+<text class="t-small" x="40" y="440">Résultat d'implémentation : 857 LUT (1,6 %), 573 bascules, 1 bloc RAM, timing respecté à 150 MHz avec 0,182 ns de marge.</text>
+</svg>

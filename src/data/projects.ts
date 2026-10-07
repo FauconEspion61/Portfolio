@@ -472,6 +472,136 @@ export const projects: Project[] = [
     placeholder: false,
   },
 
+  {
+    slug: "ascon-fpga",
+    title: {
+      fr: "ASCON sur FPGA — du SystemVerilog à la ZedBoard",
+      en: "ASCON on FPGA — from SystemVerilog to the ZedBoard",
+    },
+    tagline: {
+      fr: "Implémentation matérielle du chiffrement authentifié ASCON, standard NIST, puis intégration complète sur une carte Zynq-7020.",
+      en: "A hardware implementation of ASCON authenticated encryption, the NIST standard, then full integration on a Zynq-7020 board.",
+    },
+    category: "ecole",
+    status: "done",
+    period: { fr: "Septembre – Octobre 2026", en: "September – October 2026" },
+    stack: ["SystemVerilog", "Vivado", "Zynq-7020", "ZedBoard", "RTL"],
+    summary: {
+      fr: "Projet de la majeure Systèmes embarqués : concevoir en SystemVerilog le cœur matériel du chiffrement authentifié ASCON-128, le valider en simulation, puis construire autour de lui la couche d'intégration qui le fait tourner et s'afficher sur une carte FPGA réelle.",
+      en: "A project from the Embedded Systems major: design the hardware core of ASCON-128 authenticated encryption in SystemVerilog, validate it in simulation, then build the integration layer that makes it run and display results on a real FPGA board.",
+    },
+    details: {
+      fr: [
+        "ASCON est le chiffrement authentifié retenu par le NIST en 2023 pour la cryptographie légère — celle des objets contraints, capteurs et cartes à puce. Son principe tient en un état de 320 bits que l'on malaxe par une permutation, et dont seuls 64 bits (le « rate ») sont exposés à la donnée : le reste, la capacité, ne sort jamais. Quatre phases s'enchaînent sur ce même état — initialisation, absorption des données associées, chiffrement bloc par bloc, finalisation — et le même passage produit à la fois le texte chiffré et un tag d'authentification de 128 bits.",
+        "Le cœur de l'implémentation est la permutation. Un tour enchaîne trois couches purement combinatoires : l'addition d'une constante de tour, une couche de substitution faite de 64 boîtes-S de 5 bits instanciées en parallèle par un bloc generate — chacune prenant une tranche verticale de bits à travers les cinq mots de l'état — puis une diffusion linéaire où chaque mot est XORé avec deux copies de lui-même décalées circulairement. Ces trois couches, la boîte-S, l'assemblage du cœur et sa machine à états constituent la part écrite pendant le TP ; elles s'appuient sur un jeu de briques génériques fournies avec le sujet (registres à enable, multiplexeur d'état, compteur, enveloppes de XOR).",
+        "Le choix d'architecture structurant est de replier ce tour sur lui-même : une seule instance combinatoire, bouclée sur un registre d'état de 320 bits, exécute un tour par coup d'horloge. C'est le compromis classique surface contre débit — déplier les douze tours aurait divisé la latence mais multiplié la logique d'autant. Une machine à états de Moore à vingt-six états séquence les phases et pilote tous les signaux d'activation, pendant qu'un compteur de tours à double initialisation distingue les douze tours de l'initialisation des six tours du traitement des données.",
+        "La validation s'est faite en simulation sur un banc de test fourni avec le sujet, avec une clé et un nonce de 128 bits et plusieurs blocs de données. Le chronogramme se lit comme la spécification : les signaux de fin de phase s'allument l'un après l'autre, le bloc chiffré apparaît quand cipher_valid passe à 1, et le tag se fige en fin de finalisation.",
+        "La seconde partie du projet consistait à rendre tout cela visible sur une carte réelle, une ZedBoard à Zynq-7020. J'ai écrit autour du cœur une couche d'intégration : un MMCM qui porte l'horloge de carte de 100 à 150 MHz, une mémoire bloc contenant les blocs à chiffrer, un compteur d'adresse, et une seconde machine à états — dix états cette fois — qui orchestre le tout : lire un bloc, le présenter, attendre l'accusé du cœur, incrémenter, recommencer, puis déclencher la finalisation.",
+        "Restait le problème d'affichage : comment montrer un chiffré de 64 bits et un tag de 128 bits sur huit LEDs ? La réponse est une cascade de deux multiplexeurs pilotés par les interrupteurs de la carte — le premier choisit entre chiffré et tag, le second sélectionne un octet parmi seize. On parcourt ainsi le résultat octet par octet. L'implémentation tient dans 857 LUT, soit 1,6 % du composant, avec 573 bascules et un seul bloc RAM, et respecte le timing à 150 MHz avec 0,182 ns de marge.",
+      ],
+      en: [
+        "ASCON is the authenticated cipher selected by NIST in 2023 for lightweight cryptography — the kind used in constrained devices, sensors and smart cards. Its principle fits in one sentence: a 320-bit state churned by a permutation, of which only 64 bits (the “rate”) are ever exposed to data; the rest, the capacity, never leaves. Four phases run over that same state — initialisation, absorption of associated data, block-by-block encryption, finalisation — and a single pass produces both the ciphertext and a 128-bit authentication tag.",
+        "The heart of the implementation is the permutation. One round chains three purely combinational layers: adding a round constant, a substitution layer made of 64 five-bit S-boxes instantiated in parallel by a generate block — each taking a vertical slice of bits across the five state words — then linear diffusion where each word is XORed with two circularly rotated copies of itself. Those three layers, the S-box, the core assembly and its state machine are the part written during the lab; they build on a set of generic blocks supplied with the assignment (enabled registers, state multiplexer, counter, XOR wrappers).",
+        "The defining architectural choice is to fold that round onto itself: a single combinational instance, looped onto a 320-bit state register, executes one round per clock cycle. This is the classic area-versus-throughput trade-off — unrolling the twelve rounds would have cut the latency but multiplied the logic by as much. A 26-state Moore machine sequences the phases and drives every enable signal, while a round counter with two init values tells the twelve rounds of initialisation apart from the six rounds of data processing.",
+        "Validation was done in simulation on a testbench supplied with the assignment, with a 128-bit key and nonce and several data blocks. The waveform reads like the specification: the end-of-phase signals light up one after another, the ciphertext block appears when cipher_valid goes high, and the tag settles at the end of finalisation.",
+        "The second part of the project was making all this visible on a real board, a ZedBoard built around a Zynq-7020. Around the core I wrote an integration layer: an MMCM taking the board clock from 100 to 150 MHz, a block RAM holding the blocks to encrypt, an address counter, and a second state machine — ten states this time — orchestrating everything: read a block, present it, wait for the core's acknowledgement, increment, repeat, then trigger finalisation.",
+        "That left the display problem: how do you show a 64-bit ciphertext and a 128-bit tag on eight LEDs? The answer is a cascade of two multiplexers driven by the board switches — the first picks between ciphertext and tag, the second selects one byte out of sixteen. You walk through the result one byte at a time. The implementation fits in 857 LUTs, 1.6 % of the device, with 573 flip-flops and a single block RAM, and meets timing at 150 MHz with 0.182 ns of slack.",
+      ],
+    },
+    highlights: {
+      fr: [
+        "Permutation ASCON en SystemVerilog : trois couches combinatoires, 64 boîtes-S en parallèle, un tour par cycle",
+        "Machine à états de Moore à 26 états séquençant les quatre phases du chiffrement authentifié",
+        "Couche d'intégration FPGA complète : MMCM, mémoire bloc, FSM pilote, affichage par multiplexeurs sur 8 LEDs",
+        "Implémenté sur Zynq-7020 : 857 LUT (1,6 %), timing respecté à 150 MHz",
+      ],
+      en: [
+        "ASCON permutation in SystemVerilog: three combinational layers, 64 parallel S-boxes, one round per cycle",
+        "26-state Moore machine sequencing the four phases of authenticated encryption",
+        "Full FPGA integration layer: MMCM, block RAM, driver FSM, multiplexed display on 8 LEDs",
+        "Implemented on Zynq-7020: 857 LUTs (1.6 %), timing met at 150 MHz",
+      ],
+    },
+    media: [
+      {
+        type: "diagram",
+        src: {
+          fr: "/media/ascon-fpga/schema-1-phases.svg",
+          en: "/media/ascon-fpga/en/schema-1-phases.svg",
+        },
+        alt: {
+          fr: "Schéma des quatre phases d'ASCON-128 sur l'état de 320 bits",
+          en: "Diagram of the four phases of ASCON-128 over the 320-bit state",
+        },
+        caption: {
+          fr: "Les quatre phases d'ASCON-128. Tout se joue sur un seul état de 320 bits : la donnée n'entre que par les 64 bits du rate, la capacité reste secrète, et c'est ce même état qui finit par livrer le tag.",
+          en: "The four phases of ASCON-128. Everything happens on a single 320-bit state: data only enters through the 64-bit rate, the capacity stays secret, and that same state ultimately yields the tag.",
+        },
+        afterParagraph: 0,
+      },
+      {
+        type: "diagram",
+        src: {
+          fr: "/media/ascon-fpga/schema-2-permutation.svg",
+          en: "/media/ascon-fpga/en/schema-2-permutation.svg",
+        },
+        alt: {
+          fr: "Schéma d'un tour de permutation et de son implémentation matérielle bouclée",
+          en: "Diagram of one permutation round and its looped hardware implementation",
+        },
+        caption: {
+          fr: "Un tour de permutation et sa traduction matérielle. Les trois couches sont combinatoires : leur profondeur logique fixe la fréquence maximale, le nombre de tours fixe la latence.",
+          en: "One permutation round and its hardware translation. The three layers are combinational: their logic depth sets the maximum frequency, the number of rounds sets the latency.",
+        },
+        afterParagraph: 2,
+      },
+      {
+        type: "image",
+        src: "/media/ascon-fpga/simulation-chiffrement.png",
+        alt: {
+          fr: "Chronogramme de simulation du chiffrement ASCON sous Vivado",
+          en: "Simulation waveform of ASCON encryption in Vivado",
+        },
+        caption: {
+          fr: "Simulation du chiffrement complet. On suit l'enchaînement des phases dans les signaux de fin — initialisation, données associées, chiffrement — puis l'apparition du bloc chiffré quand cipher_valid passe à 1.",
+          en: "Simulation of a complete encryption. The phase sequence can be followed through the end-of-phase signals — initialisation, associated data, encryption — then the ciphertext block appears as cipher_valid goes high.",
+        },
+        afterParagraph: 3,
+      },
+      {
+        type: "diagram",
+        src: {
+          fr: "/media/ascon-fpga/schema-3-fpga.svg",
+          en: "/media/ascon-fpga/en/schema-3-fpga.svg",
+        },
+        alt: {
+          fr: "Schéma de la couche d'intégration FPGA autour du cœur ASCON",
+          en: "Diagram of the FPGA integration layer around the ASCON core",
+        },
+        caption: {
+          fr: "La couche d'intégration sur ZedBoard : horloge, mémoire, FSM pilote et chaîne d'affichage. Le cœur ASCON n'est qu'un bloc parmi d'autres — tout le reste existe pour l'alimenter et rendre son résultat lisible.",
+          en: "The integration layer on the ZedBoard: clocking, memory, driver FSM and display chain. The ASCON core is just one block among others — everything else exists to feed it and make its result readable.",
+        },
+        afterParagraph: 4,
+      },
+      {
+        type: "image",
+        src: "/media/ascon-fpga/implementation-zynq.png",
+        alt: {
+          fr: "Vue d'implémentation du design placé-routé sur le Zynq-7020",
+          en: "Implementation view of the placed-and-routed design on the Zynq-7020",
+        },
+        caption: {
+          fr: "Le design placé-routé sur le Zynq-7020. La logique occupée (en clair) tient dans une fraction d'une seule région d'horloge — 1,6 % des LUT du composant.",
+          en: "The placed-and-routed design on the Zynq-7020. The occupied logic (highlighted) fits within a fraction of a single clock region — 1.6 % of the device's LUTs.",
+        },
+        afterParagraph: 5,
+      },
+    ],
+    accent: "210 80% 55%",
+    placeholder: false,
+  },
+
   // ==========================================================================
   // MODÈLE — duplique ce bloc pour chaque projet école (retire les commentaires).
   // Chaque champ de texte demande ses deux langues : c'est ce qui garantit
