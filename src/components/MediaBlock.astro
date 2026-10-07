@@ -70,9 +70,16 @@ if (item.type === "diagram" && src.endsWith(".svg")) {
     margin-inline: auto;
   }
 
+  /* Même traitement que les vidéos : l'image prend sa taille naturelle dans les
+     limites du bloc et se centre. Une capture large occupe toute la largeur,
+     une capture plus carrée est simplement réduite — jamais recadrée. */
   .media-block:not(.diagram) img {
-    max-height: 520px;
-    object-fit: cover;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 560px;
+    object-fit: contain;
+    margin-inline: auto;
     background: #000;
   }
 

@@ -127,6 +127,19 @@ export const projects: Project[] = [
     },
     media: [
       {
+        // Visuel d'ouverture : pas d'afterParagraph, donc affiché juste après le résumé.
+        type: "image",
+        src: "/media/segmentation-defauts-ct/piece-industrielle-defauts.webp",
+        alt: {
+          fr: "Pièce industrielle réelle dans 3D Slicer : défauts segmentés en vert, rendu 3D et trois coupes tomographiques",
+          en: "A real industrial part in 3D Slicer: segmented defects in green, 3D rendering and three CT slices",
+        },
+        caption: {
+          fr: "Une des neuf pièces industrielles réelles, ouverte dans 3D Slicer. En haut, le rendu 3D des défauts segmentés — un chapelet de porosités qui suit une couronne de la pièce ; en bas, les trois coupes tomographiques avec la vérité terrain corrigée à la main, en vert. C'est sur ce type de donnée, rare et coûteuse à annoter, que se joue le résultat du stage.",
+          en: "One of the nine real industrial parts, opened in 3D Slicer. Top: the 3D rendering of the segmented defects — a string of pores following a ring of the part; bottom: the three CT slices with the hand-corrected ground truth, in green. This is the kind of data — scarce and expensive to annotate — on which the internship's result turns.",
+        },
+      },
+      {
         type: "diagram",
         src: {
           fr: "/media/segmentation-defauts-ct/schema-1-pipeline-donnees.svg",
