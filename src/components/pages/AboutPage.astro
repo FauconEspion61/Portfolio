@@ -28,9 +28,25 @@ const cvHref = lang === "en" ? (site.links.cvEn ?? site.links.cv) : site.links.c
   <section class="page-head">
     <div class="aurora" aria-hidden="true"><i class="a1"></i></div>
     <div class="container head-inner">
-      <p class="eyebrow" data-reveal>{t(ui.eyebrowAbout, lang)}</p>
-      <h1 data-reveal style="--reveal-delay: 60ms">{site.name}</h1>
-      <p class="role mono" data-reveal style="--reveal-delay: 110ms">{t(site.role, lang)}</p>
+      <div class="head-top">
+        {
+          site.portrait && (
+            <img
+              class="head-portrait"
+              data-reveal
+              src={site.portrait.src}
+              alt={t(site.portrait.alt, lang)}
+              width="384"
+              height="512"
+            />
+          )
+        }
+        <div class="head-identity">
+          <p class="eyebrow" data-reveal>{t(ui.eyebrowAbout, lang)}</p>
+          <h1 data-reveal style="--reveal-delay: 60ms">{site.name}</h1>
+          <p class="role mono" data-reveal style="--reveal-delay: 110ms">{t(site.role, lang)}</p>
+        </div>
+      </div>
 
       <div class="bio" data-reveal style="--reveal-delay: 170ms">
         {t(site.bio, lang).map((paragraph) => <p>{paragraph}</p>)}
@@ -178,6 +194,32 @@ const cvHref = lang === "en" ? (site.links.cvEn ?? site.links.cv) : site.links.c
     max-width: 74ch;
   }
 
+  /* Photo et identité côte à côte dès qu'il y a la place ; en dessous de
+     ~520 px le bloc texte passe sous la photo (flex-wrap). */
+  .head-top {
+    display: flex;
+    align-items: center;
+    gap: clamp(18px, 3vw, 30px);
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+
+  .head-portrait {
+    flex: none;
+    width: clamp(104px, 19vw, 146px);
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+  }
+
+  .head-identity {
+    flex: 1;
+    min-width: min(100%, 280px);
+  }
+
   .head-inner h1 {
     font-size: clamp(2.1rem, 6vw, 3.6rem);
     margin-bottom: 12px;
@@ -187,7 +229,6 @@ const cvHref = lang === "en" ? (site.links.cvEn ?? site.links.cv) : site.links.c
     font-size: 0.88rem;
     color: var(--text-muted);
     line-height: 1.7;
-    margin-bottom: 26px;
   }
 
   .bio {

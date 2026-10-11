@@ -30,24 +30,42 @@ const lastName = site.name.split(" ").slice(1).join(" ");
     </div>
 
     <div class="container hero-inner">
-      <p class="eyebrow" data-reveal>{t(ui.eyebrowPortfolio, lang)}</p>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow" data-reveal>{t(ui.eyebrowPortfolio, lang)}</p>
 
-      <h1 class="hero-title" data-reveal style="--reveal-delay: 60ms">
-        {firstName}<br />
-        <span class="gradient-text">{lastName}</span>
-      </h1>
+          <h1 class="hero-title" data-reveal style="--reveal-delay: 60ms">
+            {firstName}<br />
+            <span class="gradient-text">{lastName}</span>
+          </h1>
 
-      <p class="hero-role" data-reveal style="--reveal-delay: 120ms">{t(site.role, lang)}</p>
-      <p class="lead hero-lead" data-reveal style="--reveal-delay: 180ms">{t(site.tagline, lang)}</p>
+          <p class="hero-role" data-reveal style="--reveal-delay: 120ms">{t(site.role, lang)}</p>
+          <p class="lead hero-lead" data-reveal style="--reveal-delay: 180ms">{t(site.tagline, lang)}</p>
 
-      <div class="hero-actions" data-reveal style="--reveal-delay: 240ms">
-        <a class="btn btn-primary" href={t(ROUTES.projects, lang)}>
-          {t(ui.heroCtaProjects, lang)}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M13 6l6 6-6 6"></path>
-          </svg>
-        </a>
-        <a class="btn" href={t(ROUTES.about, lang)}>{t(ui.heroCtaAbout, lang)}</a>
+          <div class="hero-actions" data-reveal style="--reveal-delay: 240ms">
+            <a class="btn btn-primary" href={t(ROUTES.projects, lang)}>
+              {t(ui.heroCtaProjects, lang)}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M13 6l6 6-6 6"></path>
+              </svg>
+            </a>
+            <a class="btn" href={t(ROUTES.about, lang)}>{t(ui.heroCtaAbout, lang)}</a>
+          </div>
+        </div>
+
+        {
+          site.portrait && (
+            <div class="hero-portrait" data-reveal style="--reveal-delay: 140ms">
+              <img
+                src={site.portrait.src}
+                alt={t(site.portrait.alt, lang)}
+                width="384"
+                height="512"
+                fetchpriority="high"
+              />
+            </div>
+          )
+        }
       </div>
 
       <div class="hero-meta" data-reveal style="--reveal-delay: 300ms">
@@ -173,6 +191,58 @@ const lastName = site.name.split(" ").slice(1).join(" ");
   .hero-inner {
     position: relative;
     z-index: 1;
+  }
+
+  /* Sur mobile, la photo passe au-dessus du nom (`order: -1`) et reste petite :
+     elle sert d'accroche sans repousser le texte sous la ligne de flottaison. */
+  .hero-grid {
+    display: grid;
+    gap: 26px;
+  }
+
+  .hero-portrait {
+    order: -1;
+    position: relative;
+    width: clamp(118px, 30vw, 164px);
+    justify-self: start;
+  }
+
+  @media (min-width: 900px) {
+    .hero-grid {
+      /* Plafonné à 272 px : la photo source fait 384 px de large, elle reste donc
+         nette même sur un écran à haute densité. */
+      grid-template-columns: minmax(0, 1fr) clamp(216px, 22vw, 272px);
+      align-items: center;
+      gap: clamp(34px, 5vw, 64px);
+    }
+
+    .hero-portrait {
+      order: 0;
+      width: 100%;
+      justify-self: end;
+    }
+  }
+
+  /* Cadre décalé derrière la photo : rappelle la couleur d'accent sans
+     surcharger le portrait lui-même. */
+  .hero-portrait::before {
+    content: "";
+    position: absolute;
+    inset: 16px -16px -16px 16px;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    border-radius: var(--radius);
+  }
+
+  .hero-portrait img {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
   }
 
   .hero-title {

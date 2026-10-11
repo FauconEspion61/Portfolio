@@ -54,6 +54,20 @@ export const site = {
   email: "foltzerpaul@gmail.com",
 
   /**
+   * Photo de profil, affichée dans le héros de l'accueil et en tête de la page
+   * Parcours. Le fichier vit dans public/, le chemin commence donc par "/".
+   * Mets `null` pour la retirer partout d'un coup.
+   */
+  portrait: {
+    src: "/media/paul-foltzer.webp",
+    /** Décrit la photo pour les lecteurs d'écran et si l'image ne charge pas. */
+    alt: {
+      fr: "Portrait de Paul Foltzer",
+      en: "Portrait of Paul Foltzer",
+    },
+  } as { src: string; alt: Localized } | null,
+
+  /**
    * Statut affiché en pastille sur la page d'accueil.
    * Mets `null` des deux côtés pour ne rien afficher.
    */
