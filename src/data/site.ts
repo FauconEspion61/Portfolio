@@ -190,8 +190,7 @@ export const site = {
         fr: "Campus Georges Charpak Provence, Gardanne",
         en: "Georges Charpak Provence campus, Gardanne, France",
       },
-      // TODO : remplace par tes années de cursus complètes, ex "2024 – 2027"
-      period: { fr: "3ᵉ année — 2026/2027", en: "Final year — 2026/2027" },
+      period: { fr: "2024 – 2027", en: "2024 – 2027" },
       current: true,
       description: {
         fr: "Majeure choisie à l'issue du stage de recherche, dans la perspective de l'edge AI : exécuter des modèles d'intelligence artificielle au plus près du matériel, sous contraintes de mémoire, de calcul et d'énergie.",
