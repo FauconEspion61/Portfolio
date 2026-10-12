@@ -52,27 +52,95 @@ const cvHref = lang === "en" ? (site.links.cvEn ?? site.links.cv) : site.links.c
         {t(site.bio, lang).map((paragraph) => <p>{paragraph}</p>)}
       </div>
 
+      {/* Pas de bouton CV ici : la section juste en dessous en porte deux, et
+          le header en affiche un troisième. Trois fois la même chose sur un
+          seul écran, c'est une de trop. */}
       <div class="head-actions" data-reveal style="--reveal-delay: 230ms">
-        {
-          cvHref ? (
-            <a class="btn btn-primary" href={cvHref} download>
-              {t(ui.downloadCv, lang)}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3v13M7 12l5 5 5-5M5 21h14" />
-              </svg>
-            </a>
-          ) : null
-        }
-        <a class="btn" href={`mailto:${site.email}`}>{t(ui.contactMe, lang)}</a>
+        <a class="btn btn-primary" href={`mailto:${site.email}`}>{t(ui.contactMe, lang)}</a>
         {site.links.linkedin && (
           <a class="btn" href={site.links.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
         )}
       </div>
-      {cvHref && site.links.cvUpdated && (
-        <p class="cv-updated mono">{t(ui.cvUpdated, lang)} : {t(site.links.cvUpdated, lang)}</p>
-      )}
     </div>
   </section>
+
+  <!-- ============================ CV ============================ -->
+  {
+    cvHref && (
+      <section class="section-tight" id="cv">
+        <div class="container">
+          <div class="section-head cv-head" data-reveal>
+            <div>
+              <h2>{t(ui.cvTitle, lang)}</h2>
+              <p class="cv-lead">{t(ui.cvLead, lang)}</p>
+              {site.links.cvUpdated && (
+                <p class="cv-updated mono">
+                  {t(ui.cvUpdated, lang)} : {t(site.links.cvUpdated, lang)}
+                </p>
+              )}
+            </div>
+            <div class="cv-actions">
+              <a class="btn btn-primary" href={cvHref} download>
+                {t(ui.downloadCv, lang)}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v13M7 12l5 5 5-5M5 21h14" />
+                </svg>
+              </a>
+              <a class="btn" href={cvHref} target="_blank" rel="noreferrer">
+                {t(ui.cvOpenTab, lang)}
+              </a>
+            </div>
+          </div>
+
+          {/*
+            Le visualiseur n'est activé que si le navigateur sait afficher un PDF
+            en ligne — ce que les navigateurs mobiles ne font pas. Le `src` reste
+            vide jusque-là : sur téléphone, le PDF n'est donc même pas téléchargé,
+            et sans JavaScript on voit les liens plutôt qu'un cadre blanc.
+
+            `#view=Fit` demande au visualiseur d'afficher la page entière : on
+            voit le CV d'un coup d'œil au lieu d'arriver zoomé sur l'en-tête.
+          */}
+          <div class="cv-doc" data-reveal>
+            <iframe
+              id="cv-frame"
+              class="cv-frame"
+              title={t(ui.cvFrameTitle, lang)}
+              data-src={`${cvHref}#view=Fit`}
+              hidden
+            />
+            {/* Pas de boutons ici : ceux de l'en-tête de section sont toujours
+                présents, les répéter ferait quatre boutons d'affilée sur
+                téléphone — justement là où ce message s'affiche. */}
+            <div class="cv-fallback" id="cv-fallback">
+              <p>{t(ui.cvNoViewer, lang)}</p>
+            </div>
+          </div>
+        </div>
+
+        <script is:inline>
+          (function () {
+            var frame = document.getElementById("cv-frame");
+            var fallback = document.getElementById("cv-fallback");
+            if (!frame || !fallback) return;
+
+            var viewer = navigator.pdfViewerEnabled;
+            if (viewer === undefined) {
+              // Navigateur trop ancien pour l'annoncer : on se rabat sur
+              // « grand écran + souris », qui exclut les mobiles.
+              viewer = window.matchMedia("(min-width: 900px) and (pointer: fine)").matches;
+            }
+
+            if (viewer) {
+              frame.src = frame.dataset.src;
+              frame.hidden = false;
+              fallback.hidden = true;
+            }
+          })();
+        </script>
+      </section>
+    )
+  }
 
   <!-- ============================ TIMELINE ============================ -->
   {
@@ -251,6 +319,54 @@ const cvHref = lang === "en" ? (site.links.cvEn ?? site.links.cv) : site.links.c
     margin-top: 12px;
     font-size: 0.76rem;
     color: var(--text-dim);
+  }
+
+  /* ---------- CV ---------- */
+
+  .cv-head {
+    align-items: flex-end;
+    gap: 18px;
+  }
+
+  .cv-lead {
+    margin-top: 6px;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+
+  .cv-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .cv-doc {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elev);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+
+  /* Une page A4 entière serait bien trop haute : on borne le cadre et on laisse
+     le visualiseur du navigateur gérer le défilement et le zoom. */
+  .cv-frame {
+    display: block;
+    width: 100%;
+    height: min(85vh, 1000px);
+    border: 0;
+    background: #fff;
+  }
+
+  .cv-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 28px 24px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
   }
 
   /* ---------- timeline ---------- */

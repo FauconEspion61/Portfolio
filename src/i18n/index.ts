@@ -130,6 +130,18 @@ export const ui = {
   languages: { fr: "Langues", en: "Languages" },
   downloadCv: { fr: "Télécharger mon CV (PDF)", en: "Download my résumé (PDF)" },
   cvUpdated: { fr: "Mis à jour", en: "Updated" },
+  cvTitle: { fr: "Mon CV", en: "My résumé" },
+  cvLead: {
+    fr: "La version imprimable, à lire ici ou à télécharger.",
+    en: "The printable version — read it here or download it.",
+  },
+  cvOpenTab: { fr: "Ouvrir dans un nouvel onglet", en: "Open in a new tab" },
+  cvNoViewer: {
+    // Vouvoiement, comme le reste des textes adressés au visiteur.
+    fr: "Les navigateurs mobiles n'affichent pas les PDF dans la page. Utilisez les boutons ci-dessus pour ouvrir le CV ou le télécharger.",
+    en: "Mobile browsers don't display PDFs inline. Use the buttons above to open or download the résumé.",
+  },
+  cvFrameTitle: { fr: "CV de Paul Foltzer", en: "Paul Foltzer's résumé" },
   contactTitle: { fr: "Envie d'échanger ?", en: "Want to get in touch?" },
   contactLead: {
     fr: "Le plus simple reste un mail — je réponds rapidement.",

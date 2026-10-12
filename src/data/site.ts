@@ -5,7 +5,19 @@
 // oubliant sa traduction, le `npm run build` échoue : c'est voulu, ça évite de
 // publier un site à moitié traduit.
 
+import fs from "node:fs";
+import path from "node:path";
+
 import type { Localized, LocalizedList } from "../i18n";
+
+/**
+ * Le CV est détecté à la construction du site plutôt que déclaré à la main :
+ * dépose le PDF à ce chemin et tout s'allume (bouton du header, visionneuse de
+ * la page Parcours, lien du pied de page) ; retire-le et tout disparaît, sans
+ * jamais laisser un lien mort derrière.
+ */
+const CV_PATH = "/cv/cv-paul-foltzer.pdf";
+const cvExists = fs.existsSync(path.join(process.cwd(), "public", CV_PATH));
 
 export interface TimelineEntry {
   /** "formation" = diplôme / école · "experience" = stage, projet de recherche, job */
@@ -79,12 +91,16 @@ export const site = {
   links: {
     github: "https://github.com/FauconEspion61",
     linkedin: "https://www.linkedin.com/in/paul-foltzer",
-    /** Dépose ton PDF dans public/cv/ puis mets son chemin ici, ex : "/cv/cv-paul-foltzer.pdf" */
-    cv: null as string | null,
+    /** Renseigné tout seul dès que `public/cv/cv-paul-foltzer.pdf` existe. */
+    cv: (cvExists ? CV_PATH : null) as string | null,
     /** Version anglaise du CV, si tu en prépares une (sinon le PDF français est servi aux deux) */
     cvEn: null as string | null,
-    /** Date de dernière mise à jour du PDF (ex : { fr: "Septembre 2026", en: "September 2026" }) */
-    cvUpdated: null as Localized | null,
+    /**
+     * Mois de la dernière révision du CV, à tenir à jour à la main.
+     * Surtout pas la date du fichier : Vercel reclone le dépôt à chaque
+     * déploiement, elle afficherait donc la date de mise en ligne.
+     */
+    cvUpdated: { fr: "Octobre 2026", en: "October 2026" } as Localized | null,
   },
 
   /**
