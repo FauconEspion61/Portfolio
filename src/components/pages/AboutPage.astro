@@ -98,15 +98,16 @@ const cvHref = lang === "en" ? (site.links.cvEn ?? site.links.cv) : site.links.c
             vide jusque-là : sur téléphone, le PDF n'est donc même pas téléchargé,
             et sans JavaScript on voit les liens plutôt qu'un cadre blanc.
 
-            `#view=Fit` demande au visualiseur d'afficher la page entière : on
-            voit le CV d'un coup d'œil au lieu d'arriver zoomé sur l'en-tête.
+            `#view=FitH` cale la largeur de la page sur celle du cadre : c'est
+            le zoom le plus grand qui reste lisible sans déborder, et comme le
+            cadre a les proportions d'une A4, toute la page tient dedans.
           */}
           <div class="cv-doc" data-reveal>
             <iframe
               id="cv-frame"
               class="cv-frame"
               title={t(ui.cvFrameTitle, lang)}
-              data-src={`${cvHref}#view=Fit`}
+              data-src={`${cvHref}#view=FitH`}
               hidden
             />
             {/* Pas de boutons ici : ceux de l'en-tête de section sont toujours
@@ -348,12 +349,14 @@ const cvHref = lang === "en" ? (site.links.cvEn ?? site.links.cv) : site.links.c
     overflow: hidden;
   }
 
-  /* Une page A4 entière serait bien trop haute : on borne le cadre et on laisse
-     le visualiseur du navigateur gérer le défilement et le zoom. */
+  /* Le cadre adopte les proportions d'une page A4 (plus une marge pour la barre
+     d'outils du visualiseur) : la page entière tient dedans à une taille lisible,
+     donc pas de défilement imbriqué — le pire défaut d'un PDF intégré, où la
+     molette reste piégée dans le document au lieu de faire défiler la page. */
   .cv-frame {
     display: block;
     width: 100%;
-    height: min(85vh, 1000px);
+    aspect-ratio: 1 / 1.5;
     border: 0;
     background: #fff;
   }
