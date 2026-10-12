@@ -18,6 +18,18 @@ const path = Astro.url.pathname;
 const frUrl = alternateUrl(path, "fr");
 const enUrl = alternateUrl(path, "en");
 const origin = Astro.site?.origin ?? "";
+
+/**
+ * URL canonique de la page. Le site reste accessible par son ancienne adresse
+ * `.vercel.app` : sans cette balise, les moteurs y verraient un site dupliqué.
+ * Construite sur `origin`, elle désigne toujours le domaine officiel, quelle
+ * que soit l'adresse par laquelle la page a été servie.
+ *
+ * On la dérive des mêmes URLs que les balises `hreflang` ci-dessous plutôt que
+ * de `Astro.url.pathname` : les deux doivent coïncider au caractère près, sinon
+ * Google signale des alternatives qui ne correspondent pas à la canonique.
+ */
+const canonical = `${origin}${lang === "fr" ? frUrl : enUrl}`;
 ---
 
 <!doctype html>
@@ -32,7 +44,11 @@ const origin = Astro.site?.origin ?? "";
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:locale" content={lang === "fr" ? "fr_FR" : "en_GB"} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={site.name} />
     <title>{title}</title>
+
+    <link rel="canonical" href={canonical} />
 
     <!-- Indique aux moteurs de recherche que les deux versions sont le même
          contenu dans deux langues, et non du contenu dupliqué. -->
