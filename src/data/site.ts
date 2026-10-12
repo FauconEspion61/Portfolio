@@ -180,6 +180,43 @@ export const site = {
       },
     },
     {
+      kind: "experience",
+      title: {
+        fr: "Stage — département Supply Chain",
+        en: "Internship — Supply Chain department",
+      },
+      org: { fr: "Legrand", en: "Legrand" },
+      period: { fr: "Janvier 2025", en: "January 2025" },
+      description: {
+        fr: "Premier contact avec la donnée industrielle en entreprise, du côté de la logistique plutôt que de la technique : comprendre comment un groupe pilote ses stocks, et ce qu'il gagnerait à changer de méthode.",
+        en: "A first encounter with industrial data inside a company, on the logistics side rather than the engineering side: understanding how a group steers its inventory, and what it would gain by changing method.",
+      },
+      bullets: {
+        fr: [
+          "Gestion et exploitation des données de stock sous B2Wise et Excel.",
+          "Analyse de la rentabilité potentielle d'un passage au DDMRP (planification pilotée par la demande réelle plutôt que par les prévisions).",
+        ],
+        en: [
+          "Managed and processed inventory data in B2Wise and Excel.",
+          "Analysed the potential return on moving to DDMRP (planning driven by actual demand rather than forecasts).",
+        ],
+      },
+      tags: {
+        fr: ["Supply chain", "B2Wise", "Excel", "DDMRP", "Analyse de données"],
+        en: ["Supply chain", "B2Wise", "Excel", "DDMRP", "Data analysis"],
+      },
+    },
+    {
+      kind: "experience",
+      title: { fr: "Professeur particulier", en: "Private tutor" },
+      org: { fr: "Cours à domicile", en: "Home tutoring" },
+      period: { fr: "2021 – 2025", en: "2021 – 2025" },
+      description: {
+        fr: "Quatre années de cours particuliers menées en parallèle de la prépa puis de l'école : expliquer clairement, s'adapter au niveau de chacun et tenir un engagement sur la durée.",
+        en: "Four years of private tutoring alongside preparatory class and then engineering school: explaining clearly, adapting to each student's level and keeping a commitment over the long run.",
+      },
+    },
+    {
       kind: "formation",
       title: {
         fr: "Cycle ingénieur ISMIN — majeure Systèmes embarqués & Sécurité des architectures numériques et de l'IA",
@@ -199,6 +236,26 @@ export const site = {
       tags: {
         fr: ["Systèmes embarqués", "Sécurité numérique", "IA", "Edge AI"],
         en: ["Embedded systems", "Digital security", "AI", "Edge AI"],
+      },
+    },
+    {
+      kind: "formation",
+      title: {
+        fr: "Classe préparatoire aux grandes écoles — filière MP (mathématiques et physique)",
+        en: "CPGE preparatory class — MP track (mathematics and physics)",
+      },
+      org: { fr: "Lycée Gay-Lussac", en: "Lycée Gay-Lussac" },
+      location: { fr: "Limoges", en: "Limoges, France" },
+      period: { fr: "2021 – 2024", en: "2021 – 2024" },
+      description: {
+        // La CPGE n'ayant pas d'équivalent direct à l'étranger, la version
+        // anglaise explique le dispositif au lieu de le traduire mot à mot.
+        fr: "Formation intensive en mathématiques, physique et sciences de l'ingénieur, préparant les concours d'entrée aux écoles d'ingénieurs.",
+        en: "An intensive programme in mathematics, physics and engineering science, preparing for the nationwide competitive entrance exams to French engineering grandes écoles — the standard route into Mines Saint-Étienne.",
+      },
+      tags: {
+        fr: ["Mathématiques", "Physique", "Sciences de l'ingénieur"],
+        en: ["Mathematics", "Physics", "Engineering science"],
       },
     },
     // ---------------------------------------------------------------------
